@@ -3,17 +3,20 @@
 #endif
 
 using System;
-using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Vector3 = UnityEngine.Vector3;
 #elif GODOT
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector3 = System.Numerics.Vector3;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -32,14 +35,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -61,7 +64,7 @@ namespace LibBSP {
 		public string Name {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return Data.ToNullTerminatedString(0, 128);
 					}
 					default: {
@@ -71,7 +74,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						for (int i = 0; i < 128; ++i) {
 							Data[i] = 0;
 						}
@@ -89,7 +92,7 @@ namespace LibBSP {
 		public Vector3 Origin {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return new Vector3(BitConverter.ToSingle(Data, 128), BitConverter.ToSingle(Data, 132), BitConverter.ToSingle(Data, 136));
 					}
 					default: {
@@ -99,7 +102,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						value.GetBytes().CopyTo(Data, 128);
 						break;
 					}
@@ -113,7 +116,7 @@ namespace LibBSP {
 		public Vector3 Angles {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return new Vector3(BitConverter.ToSingle(Data, 140), BitConverter.ToSingle(Data, 144), BitConverter.ToSingle(Data, 148));
 					}
 					default: {
@@ -123,7 +126,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						value.GetBytes().CopyTo(Data, 140);
 						break;
 					}
@@ -137,7 +140,7 @@ namespace LibBSP {
 		public float Scale {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return BitConverter.ToSingle(Data, 152);
 					}
 					default: {
@@ -148,7 +151,7 @@ namespace LibBSP {
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						bytes.CopyTo(Data, 152);
 						break;
 					}
@@ -175,32 +178,32 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{StaticModel}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{StaticModel}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<StaticModel> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<StaticModel> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<StaticModel>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<StaticModel>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
 		public static int GetStructLength(MapType mapType, int lumpVersion = 0) {
 			switch (mapType) {
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					return 164;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}
@@ -212,7 +215,7 @@ namespace LibBSP {
 		/// <returns>Index for this lump, or -1 if the format doesn't have this lump.</returns>
 		public static int GetIndexForLump(MapType type) {
 			switch (type) {
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					return 25;
 				}
 				default: {

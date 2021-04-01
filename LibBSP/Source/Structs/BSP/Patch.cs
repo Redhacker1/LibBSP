@@ -9,9 +9,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
+using LibBSP.Source.Attributes;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 	using Vector3 = UnityEngine.Vector3;
@@ -22,8 +27,8 @@ namespace LibBSP {
 	using Vector2 = Godot.Vector2;
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
+	using Vector2 = Vector2;
+
 #endif
 
 	/// <summary>
@@ -48,40 +53,29 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
 		/// <summary>
 		/// The version number of the <see cref="ILump"/> this <see cref="ILumpObject"/> came from.
 		/// </summary>
-		public int LumpVersion {
-			get {
-				if (Parent == null) {
-					return 0;
-				}
-				return Parent.LumpInfo.version;
-			}
-		}
+		public int LumpVersion => Parent?.LumpInfo.version ?? 0;
 
 		/// <summary>
-		/// Gets the <see cref="LibBSP.Texture"/> referenced by this <see cref="Patch"/>.
+		/// Gets the <see cref="Texture"/> referenced by this <see cref="Patch"/>.
 		/// </summary>
-		public Texture Shader {
-			get {
-				return Parent.Bsp.textures[ShaderIndex];
-			}
-		}
-		
+		public Texture Shader => Parent.Bsp.Textures[ShaderIndex];
+
 		/// <summary>
-		/// Gets or sets the index of the <see cref="LibBSP.Texture"/> used by this <see cref="Patch"/>.
+		/// Gets or sets the index of the <see cref="Texture"/> used by this <see cref="Patch"/>.
 		/// </summary>
 		public int ShaderIndex {
 			get {
@@ -136,12 +130,13 @@ namespace LibBSP {
 		public Vector2 Dimensions {
 			get {
 				switch (MapType) {
-					case MapType.CoD: {
+					case MapType.CoD:
+					{
 						if (Type == 0) {
 							return new Vector2(BitConverter.ToInt16(Data, 4), BitConverter.ToInt16(Data, 6));
-						} else {
-							return new Vector2(float.NaN, float.NaN);
 						}
+
+						return new Vector2(float.NaN, float.NaN);
 					}
 					default: {
 						return new Vector2(float.NaN, float.NaN);
@@ -167,12 +162,13 @@ namespace LibBSP {
 		public int Flags {
 			get {
 				switch (MapType) {
-					case MapType.CoD: {
+					case MapType.CoD:
+					{
 						if (Type == 0) {
 							return BitConverter.ToInt32(Data, 8);
-						} else {
-							return -1;
 						}
+
+						return -1;
 					}
 					default: {
 						return -1;
@@ -198,7 +194,7 @@ namespace LibBSP {
 		public IEnumerable<Vertex> Vertices {
 			get {
 				for (int i = 0; i < NumVertices; ++i) {
-					yield return Parent.Bsp.patchVerts[FirstVertex + i];
+					yield return Parent.Bsp.PatchVerts[FirstVertex + i];
 				}
 			}
 		}
@@ -209,14 +205,17 @@ namespace LibBSP {
 		[Index("patchVerts")] public int FirstVertex {
 			get {
 				switch (MapType) {
-					case MapType.CoD: {
+					case MapType.CoD:
+					{
 						if (Type == 0) {
 							return BitConverter.ToInt32(Data, 12);
-						} else if (Type == 1) {
-							return BitConverter.ToInt32(Data, 8);
-						} else {
-							return -1;
 						}
+
+						if (Type == 1) {
+							return BitConverter.ToInt32(Data, 8);
+						}
+
+						return -1;
 					}
 					default: {
 						return -1;
@@ -244,14 +243,17 @@ namespace LibBSP {
 		[Count("patchVerts")] public int NumVertices {
 			get {
 				switch (MapType) {
-					case MapType.CoD: {
+					case MapType.CoD:
+					{
 						if (Type == 0) {
 							return BitConverter.ToInt16(Data, 4) * BitConverter.ToInt16(Data, 6);
-						} else if (Type == 1) {
-							return BitConverter.ToInt16(Data, 4);
-						} else {
-							return -1;
 						}
+
+						if (Type == 1) {
+							return BitConverter.ToInt16(Data, 4);
+						}
+
+						return -1;
 					}
 					default: {
 						return -1;
@@ -281,7 +283,7 @@ namespace LibBSP {
 		public IEnumerable<short> VertexIndices {
 			get {
 				for (int i = 0; i < NumVertexIndices; ++i) {
-					yield return (short)Parent.Bsp.patchIndices[FirstVertexIndex + i];
+					yield return (short)Parent.Bsp.PatchIndices[FirstVertexIndex + i];
 				}
 			}
 		}
@@ -293,12 +295,13 @@ namespace LibBSP {
 		[Count("patchIndices")] public int NumVertexIndices {
 			get {
 				switch (MapType) {
-					case MapType.CoD: {
+					case MapType.CoD:
+					{
 						if (Type == 1) {
 							return BitConverter.ToInt16(Data, 6);
-						} else {
-							return -1;
 						}
+
+						return -1;
 					}
 					default: {
 						return -1;
@@ -326,12 +329,13 @@ namespace LibBSP {
 		[Index("patchIndices")] public int FirstVertexIndex {
 			get {
 				switch (MapType) {
-					case MapType.CoD: {
+					case MapType.CoD:
+					{
 						if (Type == 1) {
 							return BitConverter.ToInt32(Data, 12);
-						} else {
-							return -1;
 						}
+
+						return -1;
 					}
 					default: {
 						return -1;
@@ -370,22 +374,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{Patch}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{Patch}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<Patch> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<Patch> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<Patch>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<Patch>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>

@@ -1,7 +1,7 @@
-using System;
-using System.Reflection;
+using LibBSP.Source.Structs.BSP;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.Common {
 
 	/// <summary>
 	/// Interface for an object intended to be stored in an <see cref="ILump"/> object.
@@ -19,7 +19,7 @@ namespace LibBSP {
 		byte[] Data { get; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		MapType MapType { get; }
 

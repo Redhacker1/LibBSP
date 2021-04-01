@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace LibBSP {
+namespace LibBSP.Source.Extensions {
 
 	/// <summary>
 	/// Static class containing helper methods for <c>string</c> objects.
@@ -18,8 +18,8 @@ namespace LibBSP {
 		/// <param name="container">Container <c>char</c>. Any <paramref name="separator"/> characters that occur between two instances of this character will be ignored.</param>
 		/// <returns>Array of <c>string</c> objects that are the resulting substrings.</returns>
 		public static string[] SplitUnlessInContainer(this string st, char separator, char container, StringSplitOptions options = StringSplitOptions.None) {
-			if (st.IndexOf(separator) < 0) { return new string[] { st }; }
-			if (st.IndexOf(container) < 0) { return st.Split(new char[] { separator }, options); }
+			if (st.IndexOf(separator) < 0) { return new[] { st }; }
+			if (st.IndexOf(container) < 0) { return st.Split(new[] { separator }, options); }
 
 			List<string> results = new List<string>();
 			bool inContainer = false;
@@ -45,6 +45,8 @@ namespace LibBSP {
 								current.Length = 0;
 								break;
 							}
+							default:
+								throw new ArgumentOutOfRangeException(nameof(options), options, null);
 						}
 					} else {
 						current.Append(c);
@@ -147,8 +149,9 @@ namespace LibBSP {
 		/// <returns>The resulting <c>string</c>.</returns>
 		public static string ToRawString(this byte[] bytes) {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < bytes.Length; ++i) {
-				sb.Append((char)bytes[i]);
+			foreach (byte t in bytes)
+			{
+				sb.Append((char)t);
 			}
 			return sb.ToString();
 		}

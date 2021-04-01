@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace LibBSP {
+namespace LibBSP.Source.Extensions {
 
 	/// <summary>
 	/// Contains static methods for retrieving custom attributes.

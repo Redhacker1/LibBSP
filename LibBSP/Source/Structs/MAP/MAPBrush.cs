@@ -1,32 +1,32 @@
 using System;
 using System.Collections.Generic;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.MAP {
 
 	/// <summary>
 	/// Class containing all data for a single brush, including side definitions or a patch definition.
 	/// </summary>
-	[Serializable] public class MAPBrush {
+	[Serializable] public class MapBrush {
 
-		public List<MAPBrushSide> sides = new List<MAPBrushSide>(6);
-		public MAPPatch patch;
-		public MAPTerrainEF2 ef2Terrain;
-		public MAPTerrainMoHAA mohTerrain;
+		public List<MapBrushSide> sides = new List<MapBrushSide>(6);
+		public MapPatch patch;
+		public MapTerrainEf2 ef2Terrain;
+		public MapTerrainMoHaa mohTerrain;
 
-		public bool isDetail = false;
+		public bool isDetail;
 		public bool isWater = false;
 		public bool isManVis = false;
 
 		/// <summary>
-		/// Creates a new empty <see cref="MAPBrush"/> object. Internal data will have to be set manually.
+		/// Creates a new empty <see cref="MapBrush"/> object. Internal data will have to be set manually.
 		/// </summary>
-		public MAPBrush() { }
+		public MapBrush() { }
 
 		/// <summary>
-		/// Creates a new <see cref="MAPBrush"/> object using the supplied <c>string</c> array as data.
+		/// Creates a new <see cref="MapBrush"/> object using the supplied <c>string</c> array as data.
 		/// </summary>
 		/// <param name="lines">Data to parse.</param>
-		public MAPBrush(IList<string> lines) {
+		public MapBrush(IList<string> lines) {
 			int braceCount = 0;
 			bool brushDef3 = false;
 			bool inPatch = false;
@@ -46,42 +46,34 @@ namespace LibBSP {
 				if (braceCount == 1 || brushDef3) {
 					// Source engine
 					if (line.Length >= "side".Length && line.Substring(0, "side".Length) == "side") {
-						continue;
 					}
 					// id Tech does this kinda thing
 					else if (line.Length >= "patch".Length && line.Substring(0, "patch".Length) == "patch") {
 						inPatch = true;
 						// Gonna need this line too. We can switch on the type of patch definition, make things much easier.
 						child.Add(line);
-						continue;
 					} else if (inPatch) {
 						child.Add(line);
 						inPatch = false;
-						patch = new MAPPatch(child.ToArray());
+						patch = new MapPatch(child.ToArray());
 						child = new List<string>();
-						continue;
 					} else if (line.Length >= "terrainDef".Length && line.Substring(0, "terrainDef".Length) == "terrainDef") {
 						inTerrain = true;
 						child.Add(line);
-						continue;
 					} else if (inTerrain) {
 						child.Add(line);
 						inTerrain = false;
 						// TODO: MoHRadiant terrain
-						ef2Terrain = new MAPTerrainEF2(child.ToArray());
+						ef2Terrain = new MapTerrainEf2(child.ToArray());
 						child = new List<string>();
-						continue;
 					} else if (line.Length >= "brushDef3".Length && line.Substring(0, "brushDef3".Length) == "brushDef3") {
 						brushDef3 = true;
-						continue;
 					} else if (line == "\"BRUSHFLAGS\" \"DETAIL\"") {
 						isDetail = true;
-						continue;
 					} else if (line.Length >= "\"id\"".Length && line.Substring(0, "\"id\"".Length) == "\"id\"") {
-						continue;
 					} else {
 						child.Add(line);
-						sides.Add(new MAPBrushSide(child.ToArray()));
+						sides.Add(new MapBrushSide(child.ToArray()));
 						child = new List<string>();
 					}
 				} else if (braceCount > 1) {

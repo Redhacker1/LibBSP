@@ -3,9 +3,14 @@
 #endif
 
 using System;
+using System.Numerics;
 using System.Text;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.BSP.Lumps;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 	using Vector3 = UnityEngine.Vector3;
@@ -13,8 +18,8 @@ namespace LibBSP {
 	using Vector2 = Godot.Vector2;
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -40,14 +45,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -72,15 +77,15 @@ namespace LibBSP {
 					case MapType.Quake: {
 						return Data.ToNullTerminatedString(0, 16);
 					}
-					case MapType.STEF2:
-					case MapType.STEF2Demo:
+					case MapType.Stef2:
+					case MapType.Stef2Demo:
 					case MapType.Raven:
 					case MapType.Quake3:
 					case MapType.CoD:
 					case MapType.CoD2:
 					case MapType.CoD4:
-					case MapType.FAKK:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Mohaa:
 					case MapType.Nightfire: {
 						return Data.ToNullTerminatedString(0, 64);
 					}
@@ -122,15 +127,15 @@ namespace LibBSP {
 						Array.Copy(bytes, 0, Data, 0, Math.Min(bytes.Length, 15));
 						break;
 					}
-					case MapType.STEF2:
-					case MapType.STEF2Demo:
+					case MapType.Stef2:
+					case MapType.Stef2Demo:
 					case MapType.Raven:
 					case MapType.Quake3:
 					case MapType.CoD:
 					case MapType.CoD2:
 					case MapType.CoD4:
-					case MapType.FAKK:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Mohaa:
 					case MapType.Nightfire: {
 						for (int i = 0; i < 64; ++i) {
 							Data[i] = 0;
@@ -180,7 +185,7 @@ namespace LibBSP {
 		public string Mask {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return Data.ToNullTerminatedString(76, 64);
 					}
 					default: {
@@ -190,7 +195,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						for (int i = 0; i < 64; ++i) {
 							Data[i + 76] = 0;
 						}
@@ -214,15 +219,15 @@ namespace LibBSP {
 					case MapType.SiN: {
 						return BitConverter.ToInt32(Data, 32);
 					}
-					case MapType.MOHAA:
-					case MapType.STEF2:
-					case MapType.STEF2Demo:
+					case MapType.Mohaa:
+					case MapType.Stef2:
+					case MapType.Stef2Demo:
 					case MapType.Raven:
 					case MapType.Quake3:
 					case MapType.CoD:
 					case MapType.CoD2:
 					case MapType.CoD4:
-					case MapType.FAKK: {
+					case MapType.Fakk: {
 						return BitConverter.ToInt32(Data, 64);
 					}
 					default: {
@@ -240,15 +245,15 @@ namespace LibBSP {
 						bytes.CopyTo(Data, 32);
 						break;
 					}
-					case MapType.MOHAA:
-					case MapType.STEF2:
-					case MapType.STEF2Demo:
+					case MapType.Mohaa:
+					case MapType.Stef2:
+					case MapType.Stef2Demo:
 					case MapType.Raven:
 					case MapType.Quake3:
 					case MapType.CoD:
 					case MapType.CoD2:
 					case MapType.CoD4:
-					case MapType.FAKK: {
+					case MapType.Fakk: {
 						bytes.CopyTo(Data, 64);
 						break;
 					}
@@ -262,15 +267,15 @@ namespace LibBSP {
 		public int Contents {
 			get {
 				switch (MapType) {
-					case MapType.STEF2:
-					case MapType.STEF2Demo:
+					case MapType.Stef2:
+					case MapType.Stef2Demo:
 					case MapType.Raven:
 					case MapType.Quake3:
 					case MapType.CoD:
 					case MapType.CoD2:
 					case MapType.CoD4:
-					case MapType.FAKK:
-					case MapType.MOHAA: {
+					case MapType.Fakk:
+					case MapType.Mohaa: {
 						return BitConverter.ToInt32(Data, 68);
 					}
 					default: {
@@ -281,15 +286,15 @@ namespace LibBSP {
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
 				switch (MapType) {
-					case MapType.STEF2:
-					case MapType.STEF2Demo:
+					case MapType.Stef2:
+					case MapType.Stef2Demo:
 					case MapType.Raven:
 					case MapType.Quake3:
 					case MapType.CoD:
 					case MapType.CoD2:
 					case MapType.CoD4:
-					case MapType.FAKK:
-					case MapType.MOHAA: {
+					case MapType.Fakk:
+					case MapType.Mohaa: {
 						bytes.CopyTo(Data, 68);
 						break;
 					}
@@ -298,7 +303,7 @@ namespace LibBSP {
 		}
 		
 		/// <summary>
-		/// Gets or sets the <see cref="LibBSP.TextureInfo"/> in this <see cref="Texture"/>.
+		/// Gets or sets the <see cref="Common.TextureInfo"/> in this <see cref="Texture"/>.
 		/// </summary>
 		public TextureInfo TextureInfo {
 			get {
@@ -357,16 +362,16 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Textures"/> object.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Textures"/> object.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Textures LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Textures LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Textures(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Textures(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
@@ -389,10 +394,10 @@ namespace LibBSP {
 				case MapType.CoD:
 				case MapType.CoD2:
 				case MapType.CoD4:
-				case MapType.FAKK:
-				case MapType.MOHAA:
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Fakk:
+				case MapType.Mohaa:
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					return 0;
 				}
 				case MapType.Raven:

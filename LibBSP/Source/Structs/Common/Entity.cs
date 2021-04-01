@@ -4,11 +4,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.Serialization;
 using System.Globalization;
+using System.Numerics;
+using System.Runtime.Serialization;
+using System.Text;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.BSP;
+using LibBSP.Source.Structs.Common.Lumps;
+using LibBSP.Source.Structs.MAP;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.Common {
 #if UNITY
 	using Vector3 = UnityEngine.Vector3;
 	using Vector4 = UnityEngine.Vector4;
@@ -16,17 +21,16 @@ namespace LibBSP {
 	using Vector3 = Godot.Vector3;
 	using Vector4 = Godot.Quat;
 #else
-	using Vector3 = System.Numerics.Vector3;
-	using Vector4 = System.Numerics.Vector4;
+	using Vector3 = Vector3;
+	using Vector4 = Vector4;
 #endif
 
 	/// <summary>
 	/// Class containing all data for a single <see cref="Entity"/>, including attributes, Source Entity I/O connections and solids.
 	/// </summary>
-	[Serializable] public class Entity : Dictionary<string, string>, IComparable, IComparable<Entity>, ISerializable, ILumpObject {
-
-		private static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
-		public const char ConnectionMemberSeparater = (char)0x1B;
+	[Serializable] public class Entity : Dictionary<string, string>, IComparable, IComparable<Entity>, ILumpObject {
+		static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
+		public const char ConnectionMemberSeparator = (char)27;
 
 		/// <summary>
 		/// The <see cref="ILump"/> this <see cref="ILumpObject"/> came from.
@@ -38,23 +42,19 @@ namespace LibBSP {
 		/// If accessed, will return a <c>byte</c> array of <see cref="ToString"/>.
 		/// </summary>
 		public byte[] Data {
-			get {
-				return Encoding.ASCII.GetBytes(ToString());
-			}
-			set {
-				ParseString(Encoding.ASCII.GetString(value));
-			}
+			get => Encoding.ASCII.GetBytes(ToString());
+			set => ParseString(Encoding.ASCII.GetString(value));
 		}
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -71,31 +71,26 @@ namespace LibBSP {
 		}
 
 		public List<EntityConnection> connections = new List<EntityConnection>();
-		public List<MAPBrush> brushes = new List<MAPBrush>();
+		public List<MapBrush> brushes = new List<MapBrush>();
 
 		/// <summary>
 		/// Gets whether this <see cref="Entity"/> is brush-based or not.
 		/// </summary>
-		public bool IsBrushBased { get { return brushes.Count > 0 || ModelNumber >= 0; } }
+		public bool IsBrushBased => brushes.Count > 0 || ModelNumber >= 0;
 
 		/// <summary>
 		/// Wrapper for the "spawnflags" attribute.
 		/// </summary>
 		public uint Spawnflags {
 			get {
-				try {
-					if (ContainsKey("spawnflags")) {
-						return uint.Parse(this["spawnflags"]);
-					} else {
-						return 0;
-					}
+				try
+				{
+					return ContainsKey("spawnflags") ? uint.Parse(this["spawnflags"]) : 0;
 				} catch {
 					return 0;
 				}
 			}
-			set {
-				this["spawnflags"] = value.ToString();
-			}
+			set => this["spawnflags"] = value.ToString();
 		}
 
 		/// <summary>
@@ -106,9 +101,7 @@ namespace LibBSP {
 				Vector4 vec = GetVector("origin");
 				return new Vector3(vec.X(), vec.Y(), vec.Z());
 			}
-			set {
-				this["origin"] = value.X() + " " + value.Y() + " " + value.Z();
-			}
+			set => this["origin"] = value.X() + " " + value.Y() + " " + value.Z();
 		}
 
 		/// <summary>
@@ -119,27 +112,22 @@ namespace LibBSP {
 				Vector4 vec = GetVector("angles");
 				return new Vector3(vec.X(), vec.Y(), vec.Z());
 			}
-			set {
-				this["angles"] = value.X() + " " + value.Y() + " " + value.Z();
-			}
+			set => this["angles"] = value.X() + " " + value.Y() + " " + value.Z();
 		}
 
 		/// <summary>
 		/// Wrapper for the "targetname" attribute.
 		/// </summary>
 		public string Name {
-			get {
+			get
+			{
 				if (ContainsKey("targetname")) {
 					return this["targetname"];
-				} else if (ContainsKey("name")) {
-					return this["name"];
-				} else {
-					return "";
 				}
+
+				return ContainsKey("name") ? this["name"] : "";
 			}
-			set {
-				this["targetname"] = value;
-			}
+			set => this["targetname"] = value;
 		}
 
 		/// <summary>
@@ -147,16 +135,8 @@ namespace LibBSP {
 		/// </summary>
 		/// <remarks>If an entity has no class, it has no behavior. It's either an error or metadata.</remarks>
 		public string ClassName {
-			get {
-				if (ContainsKey("classname")) {
-					return this["classname"];
-				} else {
-					return "";
-				}
-			}
-			set {
-				this["classname"] = value;
-			}
+			get => ContainsKey("classname") ? this["classname"] : "";
+			set => this["classname"] = value;
 		}
 
 		/// <summary>
@@ -164,15 +144,8 @@ namespace LibBSP {
 		/// brush-based <see cref="Entity"/>, consider using <see cref="ModelNumber"/> instead.
 		/// </summary>
 		public string Model {
-			get {
-				if (ContainsKey("model")) {
-					return this["model"];
-				}
-				return null;
-			}
-			set {
-				this["model"] = value;
-			}
+			get => ContainsKey("model") ? this["model"] : null;
+			set => this["model"] = value;
 		}
 
 		/// <summary>
@@ -182,26 +155,27 @@ namespace LibBSP {
 		/// </summary>
 		public int ModelNumber {
 			get {
-				try {
+				try
+				{
 					if (this["classname"] == "worldspawn") {
 						return 0;
-					} else {
-						if (ContainsKey("model")) {
-							string st = this["model"];
-							if (st[0] == '*') {
-								int ret = -1;
-								if (int.TryParse(st.Substring(1), out ret)) {
-									return ret;
-								} else {
-									return -1;
-								}
-							} else {
-								return -1;
+					}
+
+					if (ContainsKey("model")) {
+						string st = this["model"];
+						if (st[0] == '*')
+						{
+							if (int.TryParse(st.Substring(1), out int ret)) {
+								return ret;
 							}
-						} else {
+
 							return -1;
 						}
+
+						return -1;
 					}
+
+					return -1;
 				} catch {
 					return -1;
 				}
@@ -218,16 +192,8 @@ namespace LibBSP {
 		/// <param name="key">The attribute to retrieve.</param>
 		/// <returns>The value of the attribute if it exists, empty <c>string</c> otherwise.</returns>
 		public new string this[string key] {
-			get {
-				if (ContainsKey(key)) {
-					return base[key];
-				} else {
-					return "";
-				}
-			}
-			set {
-				base[key] = value;
-			}
+			get => ContainsKey(key) ? base[key] : "";
+			set => base[key] = value;
 		}
 
 		/// <summary>
@@ -267,7 +233,7 @@ namespace LibBSP {
 		/// <param name="copy">The <see cref="Entity"/> to copy.</param>
 		public Entity(Entity copy, ILump parent = null) : base(copy, StringComparer.InvariantCultureIgnoreCase) {
 			connections = new List<EntityConnection>(copy.connections);
-			brushes = new List<MAPBrush>(copy.brushes);
+			brushes = new List<MapBrush>(copy.brushes);
 			Parent = parent;
 		}
 
@@ -278,7 +244,7 @@ namespace LibBSP {
 		/// <param name="context">A <c>StreamingContext</c> structure containing the source and destination of the serialized stream associated with the <see cref="Entity"/>.</param>
 		protected Entity(SerializationInfo info, StreamingContext context) : base(info, context) {
 			connections = (List<EntityConnection>)info.GetValue("connections", typeof(List<EntityConnection>));
-			brushes = (List<MAPBrush>)info.GetValue("brushes", typeof(List<MAPBrush>));
+			brushes = (List<MapBrush>)info.GetValue("brushes", typeof(List<MapBrush>));
 			Parent = (ILump)info.GetValue("Parent", typeof(ILump));
 		}
 
@@ -292,7 +258,7 @@ namespace LibBSP {
 		/// <param name="st">The string to parse.</param>
 		public void ParseString(string st) {
 			Clear();
-			brushes = new List<MAPBrush>();
+			brushes = new List<MapBrush>();
 			connections = new List<EntityConnection>();
 
 			string[] lines = st.Split('\n');
@@ -346,7 +312,7 @@ namespace LibBSP {
 						// If we determined we were inside a brush substructure
 						if (inBrush) {
 							brushLines.Add(current);
-							brushes.Add(new MAPBrush(brushLines));
+							brushes.Add(new MapBrush(brushLines));
 							brushLines = new List<string>();
 						}
 						inBrush = false;
@@ -399,7 +365,7 @@ namespace LibBSP {
 			bool inQuotes = false;
 			bool isVal = false;
 			int numCommas = 0;
-			st.Trim('\r', '\n', '\t');
+			st = st.Trim('\r', '\n', '\t');
 			for (int i = 0; i < st.Length; ++i) {
 				// Some entity values in Source can use escape sequenced quotes. Need to make sure not to parse those.
 				if (st[i] == '\"' && (i == 0 || i == st.Length - 1 || st[i - 1] != '\\')) {
@@ -416,15 +382,14 @@ namespace LibBSP {
 							key += st[i];
 						} else {
 							val += st[i];
-							if (st[i] == ',' || st[i] == ConnectionMemberSeparater) { ++numCommas; }
+							if (st[i] == ',' || st[i] == ConnectionMemberSeparator) { ++numCommas; }
 						}
 					}
 				}
 			}
-			val.Replace("\\\"", "\"");
-			if (key != null && key != "") {
+			val = val.Replace("\\\"", "\"");
+			if (!string.IsNullOrEmpty(key)) {
 				if (numCommas == 4 || numCommas == 6) {
-					st = st.Replace(',', ConnectionMemberSeparater);
 					string[] connection = val.Split(',');
 					if (connection.Length < 5) {
 						connection = val.Split((char)0x1B);
@@ -464,12 +429,13 @@ namespace LibBSP {
 			StringBuilder output = new StringBuilder();
 			output.Append("{\n");
 			foreach (KeyValuePair<string, string> pair in this) {
-				output.Append(string.Format("\"{0}\" \"{1}\"\n", pair.Key, pair.Value));
+				output.Append($"\"{pair.Key}\" \"{pair.Value}\"\n");
 			}
 			if (connections.Count > 0) {
 				output.Append("connections\n{\n");
 				foreach (EntityConnection c in connections) {
-					output.Append(string.Format("\"{0}\" \"{1},{2},{3},{4},{5},{6},{7}\"\n", c.name, c.target, c.action, c.param, c.delay.ToString(_format), c.fireOnce, c.unknown0, c.unknown1));
+					output.Append(
+						$"\"{c.name}\" \"{c.target},{c.action},{c.param},{c.delay.ToString(_format)},{c.fireOnce},{c.unknown0},{c.unknown1}\"\n");
 				}
 				output.Append("}\n");
 			}
@@ -530,9 +496,9 @@ namespace LibBSP {
 		public float GetFloat(string key, float? failDefault = null) {
 			try {
 				return float.Parse(this[key], _format);
-			} catch (Exception e) {
+			} catch (Exception) {
 				if (!failDefault.HasValue) {
-					throw e;
+					throw;
 				}
 				return failDefault.Value;
 			}
@@ -548,9 +514,9 @@ namespace LibBSP {
 		public int GetInt(string key, int? failDefault = null) {
 			try {
 				return int.Parse(this[key], _format);
-			} catch (Exception e) {
+			} catch (Exception) {
 				if (!failDefault.HasValue) {
-					throw e;
+					throw;
 				}
 				return failDefault.Value;
 			}
@@ -588,13 +554,13 @@ namespace LibBSP {
 			if (obj == null) {
 				return 1;
 			}
-			Entity other = obj as Entity;
-			if (other == null) {
+
+			if (!(obj is Entity other)) {
 				throw new ArgumentException("Object is not an Entity");
 			}
 
-			int comparison = ClassName.CompareTo(other.ClassName);
-			return comparison != 0 ? comparison : Name.CompareTo(other.Name);
+			int comparison = string.Compare(ClassName, other.ClassName, StringComparison.Ordinal);
+			return comparison != 0 ? comparison : string.Compare(Name, other.Name, StringComparison.Ordinal);
 		}
 
 		/// <summary>
@@ -607,8 +573,8 @@ namespace LibBSP {
 			if (other == null) {
 				return 1;
 			}
-			int comparison = ClassName.CompareTo(other.ClassName);
-			return comparison != 0 ? comparison : Name.CompareTo(other.Name);
+			int comparison = string.Compare(ClassName, other.ClassName, StringComparison.Ordinal);
+			return comparison != 0 ? comparison : string.Compare(Name, other.Name, StringComparison.Ordinal);
 		}
 		#endregion
 
@@ -622,7 +588,7 @@ namespace LibBSP {
 		public override void GetObjectData(SerializationInfo info, StreamingContext context) {
 			base.GetObjectData(info, context);
 			info.AddValue("connections", connections, typeof(List<EntityConnection>));
-			info.AddValue("brushes", brushes, typeof(List<MAPBrush>));
+			info.AddValue("brushes", brushes, typeof(List<MapBrush>));
 		}
 		#endregion
 
@@ -633,7 +599,7 @@ namespace LibBSP {
 		/// <param name="type">The map type.</param>
 		/// <param name="version">The version of this lump.</param>
 		/// <returns>An <see cref="Entities"/> object, which is a <c>List</c> of <see cref="Entity"/>s.</returns>
-		public static Entities LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Entities LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
@@ -671,12 +637,12 @@ namespace LibBSP {
 				case MapType.Titanfall: {
 					return 0;
 				}
-				case MapType.FAKK:
-				case MapType.MOHAA: {
+				case MapType.Fakk:
+				case MapType.Mohaa: {
 					return 14;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					return 16;
 				}
 				case MapType.CoD: {

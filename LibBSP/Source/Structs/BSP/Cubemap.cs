@@ -3,15 +3,19 @@
 #endif
 
 using System;
+using System.Numerics;
 using System.Reflection;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Vector3 = UnityEngine.Vector3;
 #elif GODOT
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector3 = System.Numerics.Vector3;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -30,14 +34,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -167,22 +171,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{Cubemap}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{Cubemap}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<Cubemap> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<Cubemap> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<Cubemap>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<Cubemap>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
@@ -203,7 +207,7 @@ namespace LibBSP {
 					return 16;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}

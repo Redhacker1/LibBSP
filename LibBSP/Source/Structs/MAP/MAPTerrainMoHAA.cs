@@ -4,8 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.MAP {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 	using Vector3 = UnityEngine.Vector3;
@@ -13,14 +14,14 @@ namespace LibBSP {
 	using Vector2 = Godot.Vector2;
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
 	/// Class containing all data necessary to render a Terrain from MoHAA.
 	/// </summary>
-	[Serializable] public class MAPTerrainMoHAA {
+	[Serializable] public class MapTerrainMoHaa {
 
 		public Vector2 size;
 		public int flags;
@@ -29,23 +30,23 @@ namespace LibBSP {
 		public List<Vertex> vertices;
 
 		/// <summary>
-		/// Creates a new empty <see cref="MAPTerrainMoHAA"/> object. Internal data will have to be set manually.
+		/// Creates a new empty <see cref="MapTerrainMoHaa"/> object. Internal data will have to be set manually.
 		/// </summary>
-		public MAPTerrainMoHAA() {
+		public MapTerrainMoHaa() {
 			partitions = new List<Partition>(4);
 			vertices = new List<Vertex>(81);
 		}
 		
 		/// <summary>
-		/// Constructs a new <see cref="MAPTerrainMoHAA"/> object using the supplied string array as data.
+		/// Constructs a new <see cref="MapTerrainMoHaa"/> object using the supplied string array as data.
 		/// </summary>
 		/// <param name="lines">Data to parse.</param>
-		public MAPTerrainMoHAA(string[] lines) {
+		public MapTerrainMoHaa(string[] lines) {
 			// TODO: Constructor to parse text
 		}
 
 		/// <summary>
-		/// Class containing the data for a partition of a <see cref="MAPTerrainMoHAA"/>.
+		/// Class containing the data for a partition of a <see cref="MapTerrainMoHaa"/>.
 		/// </summary>
 		[Serializable] public class Partition {
 			public int unknown1;
@@ -76,7 +77,7 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// Class containing the data for a vertex of a <see cref="MAPTerrainMoHAA"/>.
+		/// Class containing the data for a vertex of a <see cref="MapTerrainMoHaa"/>.
 		/// </summary>
 		[Serializable] public class Vertex {
 			public int height;

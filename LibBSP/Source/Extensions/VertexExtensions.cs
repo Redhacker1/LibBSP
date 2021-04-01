@@ -6,8 +6,12 @@
 #endif
 
 using System;
+using System.Numerics;
+using LibBSP.Source.Structs.BSP;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Extensions {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 	using Vector3 = UnityEngine.Vector3;
@@ -20,9 +24,9 @@ namespace LibBSP {
 	using Vector3 = Godot.Vector3;
 	using Vector4 = Godot.Quat;
 #else
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
-	using Vector4 = System.Numerics.Vector4;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
+	using Vector4 = Vector4;
 #endif
 
 	/// <summary>
@@ -83,7 +87,9 @@ namespace LibBSP {
 				case MapType.CoD: {
 					if (version == 0) {
 						goto case MapType.Quake3;
-					} else if (version == 1) {
+					}
+
+					if (version == 1) {
 						// Patch vertex. Set color to white (makes things easier in CoDRadiant) and simply read position.
 						result.color = ColorExtensions.FromArgb(255, 255, 255, 255);
 						goto case MapType.Quake;
@@ -101,9 +107,9 @@ namespace LibBSP {
 					result.uv3 = new Vector2(BitConverter.ToSingle(data, 60), BitConverter.ToSingle(data, 64));
 					goto case MapType.Quake;
 				}
-				case MapType.MOHAA:
+				case MapType.Mohaa:
 				case MapType.Quake3:
-				case MapType.FAKK: {
+				case MapType.Fakk: {
 					result.uv0 = new Vector2(BitConverter.ToSingle(data, 12), BitConverter.ToSingle(data, 16));
 					result.uv1 = new Vector2(BitConverter.ToSingle(data, 20), BitConverter.ToSingle(data, 24));
 					result.normal = new Vector3(BitConverter.ToSingle(data, 28), BitConverter.ToSingle(data, 32), BitConverter.ToSingle(data, 36));
@@ -122,8 +128,8 @@ namespace LibBSP {
 					result.tangent = new Vector4(BitConverter.ToSingle(data, 44), BitConverter.ToSingle(data, 48), BitConverter.ToSingle(data, 68), BitConverter.ToSingle(data, 72));
 					goto case MapType.Quake;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					result.uv0 = new Vector2(BitConverter.ToSingle(data, 12), BitConverter.ToSingle(data, 16));
 					result.uv1 = new Vector2(BitConverter.ToSingle(data, 20), BitConverter.ToSingle(data, 24));
 					result.uv2 = new Vector2(BitConverter.ToSingle(data, 28), 0);
@@ -164,23 +170,23 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{Vertex}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{Vertex}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> was <c>null</c>.</exception>
 		/// <remarks>This function goes here since it can't be in Unity's <c>UIVertex</c> class, and so I can't
 		/// depend on having a constructor taking a byte array.</remarks>
-		public static Lump<Vertex> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<Vertex> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
-			int structLength = GetStructLength(bsp.version, lumpInfo.version);
+			int structLength = GetStructLength(bsp.Version, lumpInfo.version);
 			int numObjects = data.Length / structLength;
 			Lump<Vertex> lump = new Lump<Vertex>(numObjects, bsp, lumpInfo);
 			byte[] bytes = new byte[structLength];
 			for (int i = 0; i < numObjects; ++i) {
 				Array.Copy(data, i * structLength, bytes, 0, structLength);
-				lump.Add(CreateVertex(bytes, bsp.version, lumpInfo.version));
+				lump.Add(CreateVertex(bytes, bsp.Version, lumpInfo.version));
 			}
 			return lump;
 		}
@@ -214,13 +220,13 @@ namespace LibBSP {
 				case MapType.Titanfall: {
 					return 3;
 				}
-				case MapType.MOHAA:
-				case MapType.FAKK:
+				case MapType.Mohaa:
+				case MapType.Fakk:
 				case MapType.Nightfire: {
 					return 4;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					return 6;
 				}
 				case MapType.CoD: {
@@ -290,7 +296,9 @@ namespace LibBSP {
 				case MapType.CoD: {
 					if (version == 0) {
 						goto case MapType.Quake3;
-					} else if (version == 1) {
+					}
+
+					if (version == 1) {
 						goto case MapType.Quake;
 					}
 					break;
@@ -300,14 +308,14 @@ namespace LibBSP {
 					structLength = 68;
 					break;
 				}
-				case MapType.MOHAA:
+				case MapType.Mohaa:
 				case MapType.Quake3:
-				case MapType.FAKK: {
+				case MapType.Fakk: {
 					structLength = 44;
 					break;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					structLength = 48;
 					break;
 				}
@@ -358,7 +366,9 @@ namespace LibBSP {
 				case MapType.CoD: {
 					if (version == 0) {
 						goto case MapType.Quake3;
-					} else if (version == 1) {
+					}
+
+					if (version == 1) {
 						goto case MapType.Quake;
 					}
 					break;
@@ -374,9 +384,9 @@ namespace LibBSP {
 					v.uv3.GetBytes().CopyTo(bytes, 60);
 					break;
 				}
-				case MapType.MOHAA:
+				case MapType.Mohaa:
 				case MapType.Quake3:
-				case MapType.FAKK: {
+				case MapType.Fakk: {
 					v.uv0.GetBytes().CopyTo(bytes, 12);
 					v.uv1.GetBytes().CopyTo(bytes, 20);
 					v.normal.GetBytes().CopyTo(bytes, 28);
@@ -388,12 +398,12 @@ namespace LibBSP {
 					v.uv1.GetBytes().CopyTo(bytes, 20);
 					v.uv2.GetBytes().CopyTo(bytes, 28);
 					v.uv3.GetBytes().CopyTo(bytes, 36);
-					BitConverter.GetBytes((float)v.tangent.X()).CopyTo(bytes, 44);
-					BitConverter.GetBytes((float)v.tangent.Y()).CopyTo(bytes, 48);
+					BitConverter.GetBytes(v.tangent.X()).CopyTo(bytes, 44);
+					BitConverter.GetBytes(v.tangent.Y()).CopyTo(bytes, 48);
 					v.normal.GetBytes().CopyTo(bytes, 52);
 					v.color.GetBytes().CopyTo(bytes, 64);
-					BitConverter.GetBytes((float)v.tangent.Z()).CopyTo(bytes, 68);
-					BitConverter.GetBytes((float)v.tangent.W()).CopyTo(bytes, 72);
+					BitConverter.GetBytes(v.tangent.Z()).CopyTo(bytes, 68);
+					BitConverter.GetBytes(v.tangent.W()).CopyTo(bytes, 72);
 					// There's actually another field that I've only ever seen it be FFFFFFFF.
 					bytes[76] = 255;
 					bytes[77] = 255;
@@ -401,8 +411,8 @@ namespace LibBSP {
 					bytes[79] = 255;
 					goto case MapType.Quake;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					v.uv0.GetBytes().CopyTo(bytes, 12);
 					v.uv1.GetBytes().CopyTo(bytes, 20);
 					BitConverter.GetBytes(v.uv2.X()).CopyTo(bytes, 28);

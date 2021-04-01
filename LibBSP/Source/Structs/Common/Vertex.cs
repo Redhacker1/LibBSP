@@ -10,8 +10,11 @@
 #if !UNITY || OLDUNITY
 
 using System;
+using System.Drawing;
+using System.Numerics;
+using LibBSP.Source.Extensions;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.Common {
 #if UNITY
 	using Color = UnityEngine.Color32;
 	using Vector2 = UnityEngine.Vector2;
@@ -23,10 +26,10 @@ namespace LibBSP {
 	using Vector3 = Godot.Vector3;
 	using Vector4 = Godot.Quat;
 #else
-	using Color = System.Drawing.Color;
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
-	using Vector4 = System.Numerics.Vector4;
+	using Color = Color;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
+	using Vector4 = Vector4;
 #endif
 
 	/// <summary>
@@ -45,20 +48,17 @@ namespace LibBSP {
 		/// <summary>
 		/// Simple Vertex with sensible settings.
 		/// </summary>
-		public static Vertex simpleVert {
-			get {
-				return new Vertex {
-					color = ColorExtensions.FromArgb(255, 255, 255, 255),
-					normal = new Vector3(0, 0, -1),
-					position = new Vector3(0, 0, 0),
-					tangent = new Vector4(1, 0, 0, -1),
-					uv0 = new Vector2(0, 0),
-					uv1 = new Vector2(0, 0),
-					uv2 = new Vector2(0, 0),
-					uv3 = new Vector2(0, 0),
-				};
-			}
-		}
+		public static Vertex SimpleVert =>
+			new Vertex {
+				color = ColorExtensions.FromArgb(255, 255, 255, 255),
+				normal = new Vector3(0, 0, -1),
+				position = new Vector3(0, 0, 0),
+				tangent = new Vector4(1, 0, 0, -1),
+				uv0 = new Vector2(0, 0),
+				uv1 = new Vector2(0, 0),
+				uv2 = new Vector2(0, 0),
+				uv3 = new Vector2(0, 0),
+			};
 	}
 }
 #endif

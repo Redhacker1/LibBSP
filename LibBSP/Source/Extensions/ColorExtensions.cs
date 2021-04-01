@@ -1,14 +1,16 @@
+using System.Drawing;
+
 #if UNITY_3_4 || UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_5 || UNITY_5_3_OR_NEWER
 #define UNITY
 #endif
 
-namespace LibBSP {
+namespace LibBSP.Source.Extensions {
 #if UNITY
 	using Color = UnityEngine.Color32;
 #elif GODOT
 	using Color = Godot.Color;
 #else
-	using Color = System.Drawing.Color;
+	using Color = Color;
 #endif
 
 	/// <summary>

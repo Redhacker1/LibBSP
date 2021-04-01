@@ -3,8 +3,11 @@
 #endif
 
 using System;
+using System.Numerics;
+using LibBSP.Source.Structs.BSP;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Extensions {
 #if UNITY
 	using Plane = UnityEngine.Plane;
 	using Vector3 = UnityEngine.Vector3;
@@ -13,8 +16,8 @@ namespace LibBSP {
 	using Plane = Godot.Plane;
 	using Vector3 = Godot.Vector3;
 #else
-	using Plane = System.Numerics.Plane;
-	using Vector3 = System.Numerics.Vector3;
+	using Plane = Plane;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -25,7 +28,7 @@ namespace LibBSP {
 		/// <summary>
 		/// Array of base texture axes. When referenced properly, provides a good default texture axis for any given plane.
 		/// </summary>
-		public static readonly Vector3[] baseAxes = new Vector3[] {
+		public static readonly Vector3[] BaseAxes = {
 			new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(0, -1, 0),
 			new Vector3(0, 0, -1), new Vector3(1, 0, 0), new Vector3(0, -1, 0),
 			new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, -1),
@@ -86,14 +89,13 @@ namespace LibBSP {
 		/// <param name="direction">The direction of the ray.</param>
 		/// <returns>Point of intersection if the ray intersects "<paramref name="p"/>", (NaN, NaN, NaN) otherwise.</returns>
 		public static Vector3 Intersection(this Plane plane, Vector3 origin, Vector3 direction) {
-			float enter;
 			direction = direction.GetNormalized();
-			bool intersected = plane.Raycast(origin, direction, out enter);
+			bool intersected = plane.Raycast(origin, direction, out float enter);
 			if (intersected || enter != 0) {
 				return origin + (enter * direction);
-			} else {
-				return new Vector3(float.NaN, float.NaN, float.NaN);
 			}
+
+			return new Vector3(float.NaN, float.NaN, float.NaN);
 		}
 
 		/// <summary>
@@ -230,9 +232,9 @@ namespace LibBSP {
 		/// <param name="plane">This <see cref="Plane"/>.</param>
 		/// <param name="point">The point to determine whether or not it lies on the plane.</param>
 		/// <returns><c>true</c> if <paramref name="point"/> lies on this <see cref="Plane"/>.</returns>
-		public static bool HasPoint(this Plane plane, Vector3 point, float epsilon = 0.00001f) {
+		public static bool HasPoint(this Plane plane, Vector3 point) {
 			float distanceTo = plane.GetDistanceToPoint(point);
-			return distanceTo < epsilon && distanceTo > -epsilon;
+			return distanceTo < float.Epsilon && distanceTo > -float.Epsilon;
 		}
 #endif
 
@@ -265,17 +267,17 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{Plane}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{Plane}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data" /> was null.</exception>
 		/// <remarks>This function goes here since it can't go into Unity's Plane class, and so can't depend
 		/// on having a constructor taking a byte array.</remarks>
-		public static Lump<Plane> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<Plane> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
-			int structLength = GetStructLength(bsp.version, lumpInfo.version);
+			int structLength = GetStructLength(bsp.Version, lumpInfo.version);
 			int numObjects = data.Length / structLength;
 			Lump<Plane> lump = new Lump<Plane>(numObjects, bsp, lumpInfo);
 			for (int i = 0; i < numObjects; ++i) {
@@ -340,7 +342,7 @@ namespace LibBSP {
 			float best = 0; // "Best" dot product so far
 			for (int i = 0; i < 6; ++i) {
 				// For all possible axes, positive and negative
-				float dot = p.Normal().Dot(baseAxes[i * 3]);
+				float dot = p.Normal().Dot(BaseAxes[i * 3]);
 				if (dot > best) {
 					best = dot;
 					bestaxis = i;
@@ -396,10 +398,10 @@ namespace LibBSP {
 		/// <returns>Index for this lump, or -1 if the format doesn't have this lump or it's not implemented.</returns>
 		public static int GetIndexForLump(MapType type) {
 			switch (type) {
-				case MapType.FAKK:
-				case MapType.MOHAA:
-				case MapType.STEF2:
-				case MapType.STEF2Demo:
+				case MapType.Fakk:
+				case MapType.Mohaa:
+				case MapType.Stef2:
+				case MapType.Stef2Demo:
 				case MapType.Quake:
 				case MapType.Quake2:
 				case MapType.SiN:
@@ -466,12 +468,12 @@ namespace LibBSP {
 					structLength = 20;
 					break;
 				}
-				case MapType.STEF2:
-				case MapType.MOHAA:
-				case MapType.STEF2Demo:
+				case MapType.Stef2:
+				case MapType.Mohaa:
+				case MapType.Stef2Demo:
 				case MapType.Raven:
 				case MapType.Quake3:
-				case MapType.FAKK:
+				case MapType.Fakk:
 				case MapType.CoD:
 				case MapType.CoD2:
 				case MapType.CoD4:

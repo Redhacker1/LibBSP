@@ -3,10 +3,14 @@
 #endif
 
 using System;
-using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
 using System.Reflection;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Color = UnityEngine.Color32;
 	using Vector2 = UnityEngine.Vector2;
@@ -16,9 +20,9 @@ namespace LibBSP {
 	using Vector2 = Godot.Vector2;
 	using Vector3 = Godot.Vector3;
 #else
-	using Color = System.Drawing.Color;
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
+	using Color = Color;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -37,14 +41,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -64,9 +68,7 @@ namespace LibBSP {
 		/// Gets or sets the reflectivity color of this <see cref="TextureData"/>.
 		/// </summary>
 		public Color Reflectivity {
-			get {
-				return ColorExtensions.FromArgb((int)(BitConverter.ToSingle(Data, 0) * 255), (int)(BitConverter.ToSingle(Data, 4) * 255), (int)(BitConverter.ToSingle(Data, 8) * 255), 255);
-			}
+			get => ColorExtensions.FromArgb((int)(BitConverter.ToSingle(Data, 0) * 255), (int)(BitConverter.ToSingle(Data, 4) * 255), (int)(BitConverter.ToSingle(Data, 8) * 255), 255);
 			set {
 				float r = value.R() / 255f;
 				float g = value.G() / 255f;
@@ -76,34 +78,24 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// Gets the offset into <see cref="BSP.textures"/> for the texture name for this <see cref="TextureData"/>.
+		/// Gets the offset into <see cref="Bsp.Textures"/> for the texture name for this <see cref="TextureData"/>.
 		/// </summary>
-		public uint TextureStringOffset {
-			get {
-				return (uint)Parent.Bsp.texTable[TextureStringOffsetIndex];
-			}
-		}
-		
+		public uint TextureStringOffset => (uint)Parent.Bsp.TexTable[TextureStringOffsetIndex];
+
 		/// <summary>
-		/// Gets or sets the index into <see cref="BSP.texTable"/>, which is an offset into <see cref="BSP.textures"/> for
+		/// Gets or sets the index into <see cref="Bsp.TexTable"/>, which is an offset into <see cref="Bsp.Textures"/> for
 		/// the texture name for this <see cref="TextureData"/>.
 		/// </summary>
 		public int TextureStringOffsetIndex {
-			get {
-				return BitConverter.ToInt32(Data, 12);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 12);
-			}
+			get => BitConverter.ToInt32(Data, 12);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 12);
 		}
 		
 		/// <summary>
 		/// Gets or sets the actual size of the <see cref="Texture"/> referenced by this <see cref="TextureData"/>.
 		/// </summary>
 		public Vector2 Size {
-			get {
-				return new Vector2(BitConverter.ToInt32(Data, 16), BitConverter.ToInt32(Data, 20));
-			}
+			get => new Vector2(BitConverter.ToInt32(Data, 16), BitConverter.ToInt32(Data, 20));
 			set {
 				int width = (int)value.X();
 				int height = (int)value.Y();
@@ -116,9 +108,7 @@ namespace LibBSP {
 		/// Gets or sets the internal size of the <see cref="Texture"/> referenced by this <see cref="TextureData"/>.
 		/// </summary>
 		public Vector2 ViewSize {
-			get {
-				return new Vector2(BitConverter.ToInt32(Data, 24), BitConverter.ToInt32(Data, 28));
-			}
+			get => new Vector2(BitConverter.ToInt32(Data, 24), BitConverter.ToInt32(Data, 28));
 			set {
 				int width = (int)value.X();
 				int height = (int)value.Y();
@@ -146,22 +136,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{TextureData}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{TextureData}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<TextureData> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<TextureData> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<TextureData>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<TextureData>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
@@ -185,7 +175,7 @@ namespace LibBSP {
 					return 36;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}

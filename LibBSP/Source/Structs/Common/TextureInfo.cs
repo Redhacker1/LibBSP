@@ -3,9 +3,13 @@
 #endif
 
 using System;
+using System.Numerics;
 using System.Reflection;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.BSP;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.Common {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 	using Vector3 = UnityEngine.Vector3;
@@ -15,9 +19,9 @@ namespace LibBSP {
 	using Vector3 = Godot.Vector3;
 	using Plane = Godot.Plane;
 #else
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
-	using Plane = System.Numerics.Plane;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
+	using Plane = Plane;
 #endif
 
 	/// <summary>
@@ -38,16 +42,9 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
-		public MapType MapType {
-			get {
-				if (Parent == null || Parent.Bsp == null) {
-					return MapType.Undefined;
-				}
-				return Parent.Bsp.version;
-			}
-		}
+		public MapType MapType => Parent?.Bsp?.Version ?? MapType.Undefined;
 
 		/// <summary>
 		/// The version number of the <see cref="ILump"/> this <see cref="ILumpObject"/> came from.
@@ -69,33 +66,23 @@ namespace LibBSP {
 		/// Gets or sets the U axis, used to calculate the U coordinates for each <see cref="Vertex"/>.
 		/// </summary>
 		public Vector3 UAxis {
-			get {
-				return new Vector3(BitConverter.ToSingle(Data, 0), BitConverter.ToSingle(Data, 4), BitConverter.ToSingle(Data, 8));
-			}
-			set {
-				value.GetBytes().CopyTo(Data, 0);
-			}
+			get => new Vector3(BitConverter.ToSingle(Data, 0), BitConverter.ToSingle(Data, 4), BitConverter.ToSingle(Data, 8));
+			set => value.GetBytes().CopyTo(Data, 0);
 		}
 
 		/// <summary>
 		/// Gets or sets the V axis, used to calculate the V coordinates for each <see cref="Vertex"/>.
 		/// </summary>
 		public Vector3 VAxis {
-			get {
-				return new Vector3(BitConverter.ToSingle(Data, 16), BitConverter.ToSingle(Data, 20), BitConverter.ToSingle(Data, 24));
-			}
-			set {
-				value.GetBytes().CopyTo(Data, 16);
-			}
+			get => new Vector3(BitConverter.ToSingle(Data, 16), BitConverter.ToSingle(Data, 20), BitConverter.ToSingle(Data, 24));
+			set => value.GetBytes().CopyTo(Data, 16);
 		}
 
 		/// <summary>
 		/// Gets or sets the translation of the texture along the U and V axes.
 		/// </summary>
 		public Vector2 Translation {
-			get {
-				return new Vector2(BitConverter.ToSingle(Data, 12), BitConverter.ToSingle(Data, 28));
-			}
+			get => new Vector2(BitConverter.ToSingle(Data, 12), BitConverter.ToSingle(Data, 28));
 			set {
 				BitConverter.GetBytes(value.X()).CopyTo(Data, 12);
 				BitConverter.GetBytes(value.Y()).CopyTo(Data, 28);
@@ -128,10 +115,42 @@ namespace LibBSP {
 					case MapType.Undefined: {
 						return BitConverter.ToInt32(Data, 36);
 					}
+					case MapType.Nightfire:
+						break;
+					case MapType.Stef2:
+						break;
+					case MapType.Mohaa:
+						break;
+					case MapType.Stef2Demo:
+						break;
+					case MapType.Fakk:
+						break;
+					case MapType.CoD2:
+						break;
+					case MapType.SiN:
+						break;
+					case MapType.Raven:
+						break;
+					case MapType.CoD4:
+						break;
+					case MapType.Quake2:
+						break;
+					case MapType.Daikatana:
+						break;
+					case MapType.SoF:
+						break;
+					case MapType.Quake3:
+						break;
+					case MapType.CoD:
+						break;
+					case MapType.Titanfall:
+						break;
 					default: {
 						return -1;
 					}
 				}
+
+				return -1;
 			}
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
@@ -159,6 +178,38 @@ namespace LibBSP {
 						bytes.CopyTo(Data, 36);
 						break;
 					}
+					case MapType.Nightfire:
+						break;
+					case MapType.Stef2:
+						break;
+					case MapType.Mohaa:
+						break;
+					case MapType.Stef2Demo:
+						break;
+					case MapType.Fakk:
+						break;
+					case MapType.CoD2:
+						break;
+					case MapType.SiN:
+						break;
+					case MapType.Raven:
+						break;
+					case MapType.CoD4:
+						break;
+					case MapType.Quake2:
+						break;
+					case MapType.Daikatana:
+						break;
+					case MapType.SoF:
+						break;
+					case MapType.Quake3:
+						break;
+					case MapType.CoD:
+						break;
+					case MapType.Titanfall:
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
 				}
 			}
 		}
@@ -278,8 +329,8 @@ namespace LibBSP {
 		public static Vector3[] TextureAxisFromPlane(Plane p) {
 			int bestaxis = p.BestAxis();
 			Vector3[] newAxes = new Vector3[2];
-			newAxes[0] = PlaneExtensions.baseAxes[bestaxis * 3 + 1];
-			newAxes[1] = PlaneExtensions.baseAxes[bestaxis * 3 + 2];
+			newAxes[0] = PlaneExtensions.BaseAxes[bestaxis * 3 + 1];
+			newAxes[1] = PlaneExtensions.BaseAxes[bestaxis * 3 + 2];
 			return newAxes;
 		}
 
@@ -287,22 +338,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{TextureInfo}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{TextureInfo}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<TextureInfo> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<TextureInfo> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<TextureInfo>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<TextureInfo>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
@@ -332,7 +383,7 @@ namespace LibBSP {
 					return 96;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}
@@ -362,10 +413,41 @@ namespace LibBSP {
 				case MapType.Nightfire: {
 					return 17;
 				}
+				case MapType.Undefined:
+					break;
+				case MapType.Stef2:
+					break;
+				case MapType.Mohaa:
+					break;
+				case MapType.Stef2Demo:
+					break;
+				case MapType.Fakk:
+					break;
+				case MapType.CoD2:
+					break;
+				case MapType.SiN:
+					break;
+				case MapType.Raven:
+					break;
+				case MapType.CoD4:
+					break;
+				case MapType.Quake2:
+					break;
+				case MapType.Daikatana:
+					break;
+				case MapType.SoF:
+					break;
+				case MapType.Quake3:
+					break;
+				case MapType.CoD:
+					break;
+				case MapType.Titanfall:
+					break;
 				default: {
 					return -1;
 				}
 			}
+			return -1;
 		}
 
 	}

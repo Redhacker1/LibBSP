@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using LibBSP.Source.Structs.BSP;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.Common.Lumps {
 
 	/// <summary>
 	/// List class for numbers. Can handle any integer data type except <c>ulong</c>.
@@ -10,9 +11,9 @@ namespace LibBSP {
 	public class NumList : IList<long>, ICollection<long>, IEnumerable<long>, IList, ICollection, IEnumerable, ILump {
 
 		/// <summary>
-		/// The <see cref="BSP"/> this <see cref="ILump"/> came from.
+		/// The <see cref="BSP.Bsp"/> this <see cref="ILump"/> came from.
 		/// </summary>
-		public BSP Bsp { get; protected set; }
+		public Bsp Bsp { get; protected set; }
 
 		/// <summary>
 		/// The <see cref="LumpInfo"/> associated with this <see cref="ILump"/>.
@@ -22,7 +23,8 @@ namespace LibBSP {
 		/// <summary>
 		/// Enum of the types that may be used in this class.
 		/// </summary>
-		public enum DataType : int {
+		public enum DataType
+		{
 			Invalid = 0,
 			SByte = 1,
 			Byte = 2,
@@ -34,7 +36,7 @@ namespace LibBSP {
 		}
 
 		public byte[] data;
-		public DataType type { get; private set; }
+		public DataType Type { get; private set; }
 
 		/// <summary>
 		/// Creates a new <see cref="NumList"/> object from a <c>byte</c> array.
@@ -42,14 +44,14 @@ namespace LibBSP {
 		/// <param name="data"><c>byte</c> array to parse.</param>
 		/// <param name="type">The type of number to store.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> was <c>null</c>.</exception>
-		public NumList(byte[] data, DataType type, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) {
+		public NumList(byte[] data, DataType type, Bsp bsp = null, LumpInfo lumpInfo = default) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 			Bsp = bsp;
 			LumpInfo = lumpInfo;
 			this.data = data;
-			this.type = type;
+			Type = type;
 		}
 
 		/// <summary>
@@ -57,8 +59,8 @@ namespace LibBSP {
 		/// </summary>
 		/// <param name="type">The type of number to store.</param>
 		public NumList(DataType type) {
-			this.data = new byte[0];
-			this.type = type;
+			data = new byte[0];
+			Type = type;
 		}
 
 		/// <summary>
@@ -67,7 +69,7 @@ namespace LibBSP {
 		/// <param name="data"><c>byte</c> array to parse.</param>
 		/// <param name="type">The type of number to store.</param>
 		/// <returns>The resulting <see cref="NumList"/>.</returns>
-		public static NumList LumpFactory(byte[] data, DataType type, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) {
+		public static NumList LumpFactory(byte[] data, DataType type, Bsp bsp = null, LumpInfo lumpInfo = default) {
 			return new NumList(data, type, bsp, lumpInfo);
 		}
 
@@ -76,7 +78,7 @@ namespace LibBSP {
 		/// </summary>
 		public int StructLength {
 			get {
-				switch (type) {
+				switch (Type) {
 					case DataType.Byte:
 					case DataType.SByte: {
 						return sizeof(sbyte);
@@ -113,8 +115,8 @@ namespace LibBSP {
 					dataType = DataType.Int32;
 					return 5;
 				}
-				case MapType.FAKK:
-				case MapType.MOHAA: {
+				case MapType.Fakk:
+				case MapType.Mohaa: {
 					dataType = DataType.Int32;
 					return 7;
 				}
@@ -125,8 +127,8 @@ namespace LibBSP {
 					dataType = DataType.UInt16;
 					return 9;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					dataType = DataType.UInt32;
 					return 9;
 				}
@@ -210,13 +212,13 @@ namespace LibBSP {
 		public static int GetIndexForMarkBrushesLump(MapType version, out DataType dataType) {
 			switch (version) {
 				case MapType.Quake3:
-				case MapType.MOHAA:
-				case MapType.FAKK: {
+				case MapType.Mohaa:
+				case MapType.Fakk: {
 					dataType = DataType.UInt32;
 					return 6;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					dataType = DataType.UInt32;
 					return 8;
 				}
@@ -274,8 +276,8 @@ namespace LibBSP {
 		/// <returns>Index for this lump, or -1 if the format doesn't have this lump or it's not implemented.</returns>
 		public static int GetIndexForIndicesLump(MapType version, out DataType dataType) {
 			switch (version) {
-				case MapType.FAKK:
-				case MapType.MOHAA: {
+				case MapType.Fakk:
+				case MapType.Mohaa: {
 					dataType = DataType.UInt32;
 					return 5;
 				}
@@ -283,8 +285,8 @@ namespace LibBSP {
 					dataType = DataType.UInt32;
 					return 6;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					dataType = DataType.UInt32;
 					return 7;
 				}
@@ -447,27 +449,14 @@ namespace LibBSP {
 			return false;
 		}
 
-		public int Count {
-			get {
-				return data.Length / StructLength;
-			}
-		}
+		public int Count => data.Length / StructLength;
 
-		public bool IsReadOnly {
-			get {
-				return false;
-			}
-		}
+		public bool IsReadOnly => false;
 
-		public object SyncRoot {
-			get {
-				return data.SyncRoot;
-			}
-		}
+		public object SyncRoot => data.SyncRoot;
 
-		public bool IsSynchronized {
-			get { return data.IsSynchronized; }
-		}
+		public bool IsSynchronized => data.IsSynchronized;
+
 		#endregion
 
 		#region IEnumerable
@@ -533,9 +522,7 @@ namespace LibBSP {
 		}
 
 		object IList.this[int index] {
-			get {
-				return this[index];
-			}
+			get => this[index];
 			set {
 				if (value is byte || value is sbyte || value is short || value is ushort || value is int || value is uint || value is long) {
 					this[index] = (long)value;
@@ -543,11 +530,7 @@ namespace LibBSP {
 			}
 		}
 
-		public bool IsFixedSize {
-			get {
-				return false;
-			}
-		}
+		public bool IsFixedSize => false;
 
 		public void Insert(int index, long value) {
 			byte[] temp = new byte[data.Length + StructLength];
@@ -567,7 +550,7 @@ namespace LibBSP {
 
 		public long this[int index] {
 			get {
-				switch (type) {
+				switch (Type) {
 					case DataType.SByte: {
 						return (sbyte)data[index];
 					}
@@ -596,7 +579,7 @@ namespace LibBSP {
 			}
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
-				switch (type) {
+				switch (Type) {
 					case DataType.SByte:
 					case DataType.Byte: {
 						data[index] = bytes[0];

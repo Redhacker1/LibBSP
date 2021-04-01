@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP.Lumps {
 
 	/// <summary>
 	/// <c>List</c>&lt;<see cref="Texture"/>&gt; with some useful methods for manipulating <see cref="Texture"/> objects,
@@ -13,40 +13,40 @@ namespace LibBSP {
 		/// <summary>
 		/// Creates an empty <see cref="Textures"/> object.
 		/// </summary>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Textures(BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(bsp, lumpInfo) { }
+		public Textures(Bsp bsp = null, LumpInfo lumpInfo = default) : base(bsp, lumpInfo) { }
 
 		/// <summary>
-		/// Creates a new <see cref="Textures"/> that contains elements copied from the passed <see cref="IEnumerable{Texture}"/>.
+		/// Creates a new <see cref="Textures"/> that contains elements copied from the passed <see cref="IEnumerable{T}"/>.
 		/// </summary>
 		/// <param name="items">The elements to copy into this <c>Lump</c>.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Textures(IEnumerable<Texture> items, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(items, bsp, lumpInfo) { }
+		public Textures(IEnumerable<Texture> items, Bsp bsp = null, LumpInfo lumpInfo = default) : base(items, bsp, lumpInfo) { }
 
 		/// <summary>
 		/// Creates an empty <see cref="Textures"/> object with the specified initial capactiy.
 		/// </summary>
 		/// <param name="capacity">The number of elements that can initially be stored.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Textures(int capacity, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(capacity, bsp, lumpInfo) { }
+		public Textures(int capacity, Bsp bsp = null, LumpInfo lumpInfo = default) : base(capacity, bsp, lumpInfo) { }
 
 		/// <summary>
 		/// Parses the passed <c>byte</c> array into a <see cref="Textures"/> object.
 		/// </summary>
 		/// <param name="data">Array of <c>byte</c>s to parse.</param>
 		/// <param name="structLength">Number of <c>byte</c>s to copy into the children. Will be recalculated based on BSP format.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> or <paramref name="bsp"/> was <c>null</c>.</exception>
-		public Textures(byte[] data, int structLength, BSP bsp, LumpInfo lumpInfo = default(LumpInfo)) : base(bsp, lumpInfo) {
+		public Textures(byte[] data, int structLength, Bsp bsp, LumpInfo lumpInfo = default) : base(bsp, lumpInfo) {
 			if (data == null || bsp == null) {
 				throw new ArgumentNullException();
 			}
 
-			switch (bsp.version) {
+			switch (bsp.Version) {
 				case MapType.Nightfire: {
 					structLength = 64;
 					break;
@@ -62,13 +62,13 @@ namespace LibBSP {
 				case MapType.Quake2:
 				case MapType.Daikatana:
 				case MapType.SoF:
-				case MapType.STEF2:
-				case MapType.STEF2Demo:
-				case MapType.FAKK: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo:
+				case MapType.Fakk: {
 					structLength = 76;
 					break;
 				}
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					structLength = 140;
 					break;
 				}
@@ -90,7 +90,7 @@ namespace LibBSP {
 				case MapType.DMoMaM: {
 					int offset = 0;
 					for (int i = 0; i < data.Length; ++i) {
-						if (data[i] == (byte)0x00) {
+						if (data[i] == 0x00) {
 							// They are null-terminated strings, of non-constant length (not padded)
 							byte[] myBytes = new byte[i - offset];
 							Array.Copy(data, offset, myBytes, 0, i - offset);
@@ -111,7 +111,7 @@ namespace LibBSP {
 					return;
 				}
 				default: {
-					throw new ArgumentException("Lump object Texture does not exist in map type " + bsp.version + " or has not been implemented.");
+					throw new ArgumentException("Lump object Texture does not exist in map type " + bsp.Version + " or has not been implemented.");
 				}
 			}
 
@@ -149,12 +149,13 @@ namespace LibBSP {
 		/// <returns>The offset of the specified texture, or -1 if it wasn't found.</returns>
 		public int GetOffsetOf(string name) {
 			int offset = 0;
-			for (int i = 0; i < Count; ++i) {
+			for (int i = 0; i < Count; ++i)
+			{
 				if (this[i].Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)) {
 					return offset;
-				} else {
-					offset += this[i].Name.Length + 1;
 				}
+
+				offset += this[i].Name.Length + 1;
 			}
 			// If we get here, the requested texture didn't exist.
 			return -1;

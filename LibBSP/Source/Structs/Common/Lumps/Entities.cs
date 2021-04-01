@@ -1,9 +1,11 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using LibBSP.Source.Structs.BSP;
+using LibBSP.Source.Util;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.Common.Lumps {
 
 	/// <summary>
 	/// Class representing a group of <see cref="Entity"/> objects. Contains helpful methods to handle Entities in the <c>List</c>.
@@ -13,7 +15,8 @@ namespace LibBSP {
 		/// <summary>
 		/// Initializes a new empty <see cref="Entities"/> object.
 		/// </summary>
-		public Entities() : base(null, default(LumpInfo)) { }
+		public Entities()
+		{ }
 
 		/// <summary>
 		/// Initializes a new instance of an <see cref="Entities"/> object copying a passed <c>IEnumerable</c> of <see cref="Entity"/> objects.
@@ -21,29 +24,29 @@ namespace LibBSP {
 		/// <param name="data">Collection of <see cref="Entity"/> objects to copy.</param>
 		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Entities(IEnumerable<Entity> entities, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(entities, bsp, lumpInfo) { }
+		public Entities(IEnumerable<Entity> entities, Bsp bsp = null, LumpInfo lumpInfo = default) : base(entities, bsp, lumpInfo) { }
 
 		/// <summary>
 		/// Initializes a new instance of an <see cref="Entities"/> object with a specified initial capacity.
 		/// </summary>
 		/// <param name="initialCapacity">Initial capacity of the <c>List</c> of <see cref="Entity"/> objects.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Entities(int initialCapacity, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(initialCapacity, bsp, lumpInfo) { }
+		public Entities(int initialCapacity, Bsp bsp = null, LumpInfo lumpInfo = default) : base(initialCapacity, bsp, lumpInfo) { }
 
 		/// <summary>
 		/// Initializes a new <see cref="Entities"/> object.
 		/// </summary>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Entities(BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(bsp, lumpInfo) { }
+		public Entities(Bsp bsp = null, LumpInfo lumpInfo = default) : base(bsp, lumpInfo) { }
 
 		/// <summary>
 		/// Initializes a new <see cref="Entities"/> object, parsing all the bytes in the passed <paramref name="file"/>.
 		/// </summary>
 		/// <remarks>
 		/// This will not populate Bsp or LumpInfo since a file is being read directly. This should not be used to read a
-		/// lump file, they should be handled through <see cref="BSPReader"/>. Use this to read raw MAP formats instead.
+		/// lump file, they should be handled through <see cref="BspReader"/>. Use this to read raw MAP formats instead.
 		/// </remarks>
 		/// <param name="file">The file to read.</param>
 		public Entities(FileInfo file) : this(File.ReadAllBytes(file.FullName)) { }
@@ -52,9 +55,9 @@ namespace LibBSP {
 		/// Initializes a new <see cref="Entities"/> object, and parses the passed <c>byte</c> array as a <c>string</c>.
 		/// </summary>
 		/// <param name="data"><c>Byte</c>s read from a file.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public Entities(byte[] data, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(bsp, lumpInfo) {
+		public Entities(byte[] data, Bsp bsp = null, LumpInfo lumpInfo = default) : base(bsp, lumpInfo) {
 
 			// Keep track of whether or not we're currently in a set of quotation marks.
 			// I came across a map where the map maker used { and } within a value.
@@ -117,7 +120,8 @@ namespace LibBSP {
 			}
 
 			if (braceCount != 0) {
-				throw new ArgumentException(string.Format("Brace mismatch when parsing entities! Entity: {0} Brace level: {1}", Count, braceCount));
+				throw new ArgumentException(
+					$"Brace mismatch when parsing entities! Entity: {Count} Brace level: {braceCount}");
 			}
 		}
 

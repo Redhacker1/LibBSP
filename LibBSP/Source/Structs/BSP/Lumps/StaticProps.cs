@@ -1,8 +1,10 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP.Lumps {
 
 	/// <summary>
 	/// List of <see cref="StaticProp"/> objects containing data relevant to Static Props, like the dictionary of actual model paths.
@@ -22,30 +24,30 @@ namespace LibBSP {
 		/// <summary>
 		/// Creates an empty <see cref="StaticProps"/> object.
 		/// </summary>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public StaticProps(BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(bsp, lumpInfo) {
+		public StaticProps(Bsp bsp = null, LumpInfo lumpInfo = default) : base(bsp, lumpInfo) {
 			ModelDictionary = new string[] { };
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="StaticProps"/> that contains elements copied from the passed <see cref="IEnumerable{StaticProp}"/> and the passed <paramref name="dictionary"/>.
+		/// Creates a new <see cref="StaticProps"/> that contains elements copied from the passed <see cref="IEnumerable{T}"/> and the passed <paramref name="dictionary"/>.
 		/// </summary>
 		/// <param name="items">The elements to copy into this <c>Lump</c>.</param>
 		/// <param name="dictionary">A dictionary of static prop models. This is referenced from <see cref="StaticProp"/> objects.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public StaticProps(IEnumerable<StaticProp> items, IList<string> dictionary, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(items, bsp, lumpInfo) {
-			this.ModelDictionary = dictionary.ToArray();
+		public StaticProps(IEnumerable<StaticProp> items, IList<string> dictionary, Bsp bsp = null, LumpInfo lumpInfo = default) : base(items, bsp, lumpInfo) {
+			ModelDictionary = dictionary.ToArray();
 		}
 
 		/// <summary>
 		/// Creates an empty <see cref="StaticProps"/> object with the specified initial capactiy.
 		/// </summary>
 		/// <param name="capacity">The number of elements that can initially be stored.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
-		public StaticProps(int capacity, BSP bsp = null, LumpInfo lumpInfo = default(LumpInfo)) : base(capacity, bsp, lumpInfo) {
+		public StaticProps(int capacity, Bsp bsp = null, LumpInfo lumpInfo = default) : base(capacity, bsp, lumpInfo) {
 			ModelDictionary = new string[] { };
 		}
 
@@ -54,10 +56,10 @@ namespace LibBSP {
 		/// </summary>
 		/// <param name="data">Array of <c>byte</c>s to parse.</param>
 		/// <param name="structLength">Number of <c>byte</c>s to copy into the children. Will be recalculated based on BSP format.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> or <paramref name="bsp"/> was <c>null</c>.</exception>
-		public StaticProps(byte[] data, int structLength, BSP bsp, LumpInfo lumpInfo = default(LumpInfo)) : base(bsp, lumpInfo) {
+		public StaticProps(byte[] data, int structLength, Bsp bsp, LumpInfo lumpInfo = default) : base(bsp, lumpInfo) {
 			if (data == null || bsp == null) {
 				throw new ArgumentNullException();
 			}
@@ -76,7 +78,7 @@ namespace LibBSP {
 					LeafIndices[i] = BitConverter.ToInt16(data, offset);
 					offset += 2;
 				}
-				if (Bsp.version == MapType.Vindictus && lumpInfo.version == 6) {
+				if (Bsp.Version == MapType.Vindictus && lumpInfo.version == 6) {
 					int numPropScales = BitConverter.ToInt32(data, offset);
 					offset += 4 + (numPropScales * 16);
 				}

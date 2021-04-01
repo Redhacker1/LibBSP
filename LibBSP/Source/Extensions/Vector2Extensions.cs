@@ -3,14 +3,15 @@
 #endif
 
 using System;
+using System.Numerics;
 
-namespace LibBSP {
+namespace LibBSP.Source.Extensions {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 #elif GODOT
 	using Vector2 = Godot.Vector2;
 #else
-	using Vector2 = System.Numerics.Vector2;
+	using Vector2 = Vector2;
 #endif
 
 	/// <summary>

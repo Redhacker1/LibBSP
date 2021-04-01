@@ -7,9 +7,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
+using System.Numerics;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.MAP {
 #if UNITY
 	using Vector2 = UnityEngine.Vector2;
 	using Vector3 = UnityEngine.Vector3;
@@ -22,32 +26,31 @@ namespace LibBSP {
 	using Vector3 = Godot.Vector3;
 	using Color = Godot.Color;
 #else
-	using Vector2 = System.Numerics.Vector2;
-	using Vector3 = System.Numerics.Vector3;
-	using Color = System.Drawing.Color;
+	using Vector2 = Vector2;
+	using Vector3 = Vector3;
+	using Color = Color;
 #endif
 
 	/// <summary>
 	/// Class containing all data necessary to render a Bezier patch.
 	/// </summary>
-	[Serializable] public class MAPPatch {
-
-		private static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
+	[Serializable] public class MapPatch {
+		static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
 
 		public Vertex[] points;
 		public Vector2 dims;
 		public string texture;
 
 		/// <summary>
-		/// Creates a new empty <see cref="MAPPatch"/> object. Internal data will have to be set manually.
+		/// Creates a new empty <see cref="MapPatch"/> object. Internal data will have to be set manually.
 		/// </summary>
-		public MAPPatch() { }
+		public MapPatch() { }
 
 		/// <summary>
-		/// Constructs a new <see cref="MAPPatch"/> object using the supplied string array as data.
+		/// Constructs a new <see cref="MapPatch"/> object using the supplied string array as data.
 		/// </summary>
 		/// <param name="lines">Data to parse.</param>
-		public MAPPatch(string[] lines) {
+		public MapPatch(string[] lines) {
 
 			texture = lines[2];
 			List<Vertex> vertices = new List<Vertex>(9);
@@ -55,14 +58,15 @@ namespace LibBSP {
 			switch (lines[0]) {
 				case "patchDef3":
 				case "patchDef2": {
-					string[] line = lines[3].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+					string[] line = lines[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 					dims = new Vector2(float.Parse(line[1], _format), float.Parse(line[2], _format));
 					for (int i = 0; i < dims.X(); ++i) {
-						line = lines[i + 5].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						line = lines[i + 5].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 						for (int j = 0; j < dims.Y(); ++j) {
 							Vector3 point = new Vector3(float.Parse(line[2 + (j * 7)], _format), float.Parse(line[3 + (j * 7)], _format), float.Parse(line[4 + (j * 7)], _format));
 							Vector2 uv = new Vector2(float.Parse(line[5 + (j * 7)], _format), float.Parse(line[6 + (j * 7)], _format));
-							Vertex vertex = new Vertex() {
+							Vertex vertex = new Vertex
+							{
 								position = point,
 								uv0 = uv,
 								color = ColorExtensions.FromArgb(255, 255, 255, 255),
@@ -73,15 +77,16 @@ namespace LibBSP {
 					break;
 				}
 				case "patchTerrainDef3": {
-					string[] line = lines[3].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+					string[] line = lines[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 					dims = new Vector2(float.Parse(line[1], _format), float.Parse(line[2], _format));
 					for (int i = 0; i < dims.X(); ++i) {
-						line = lines[i + 5].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						line = lines[i + 5].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 						for (int j = 0; j < dims.Y(); ++j) {
 							Vector3 point = new Vector3(float.Parse(line[2 + (j * 12)], _format), float.Parse(line[3 + (j * 12)], _format), float.Parse(line[4 + (j * 12)], _format));
 							Vector2 uv = new Vector2(float.Parse(line[5 + (j * 12)], _format), float.Parse(line[6 + (j * 12)], _format));
 							Color color = ColorExtensions.FromArgb(byte.Parse(line[7 + (j * 12)]), byte.Parse(line[8 + (j * 12)]), byte.Parse(line[9 + (j * 12)]), byte.Parse(line[10 + (j * 12)]));
-							Vertex vertex = new Vertex() {
+							Vertex vertex = new Vertex
+							{
 								position = point,
 								uv0 = uv,
 								color = color,
@@ -92,7 +97,7 @@ namespace LibBSP {
 					break;
 				}
 				default: {
-					throw new ArgumentException(string.Format("Unknown patch type {0}! Call a scientist! ", lines[0]));
+					throw new ArgumentException($"Unknown patch type {lines[0]}! Call a scientist! ");
 				}
 			}
 		}

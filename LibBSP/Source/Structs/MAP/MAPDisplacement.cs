@@ -5,22 +5,23 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
+using LibBSP.Source.Extensions;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.MAP {
 #if UNITY
 	using Vector3 = UnityEngine.Vector3;
 #elif GODOT
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector3 = System.Numerics.Vector3;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
 	/// Class containing all data necessary to render a displacement from Source engine.
 	/// </summary>
-	[Serializable] public class MAPDisplacement {
-
-		private static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
+	[Serializable] public class MapDisplacement {
+		static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
 
 		public int power;
 		public Vector3 start;
@@ -29,15 +30,15 @@ namespace LibBSP {
 		public float[,] alphas;
 
 		/// <summary>
-		/// Creates a new empty <see cref="MAPDisplacement"/> object. Internal data will have to be set manually.
+		/// Creates a new empty <see cref="MapDisplacement"/> object. Internal data will have to be set manually.
 		/// </summary>
-		public MAPDisplacement() { }
+		public MapDisplacement() { }
 
 		/// <summary>
-		/// Constructs a <see cref="MAPDisplacement"/> object using the provided <c>string</c> array as the data.
+		/// Constructs a <see cref="MapDisplacement"/> object using the provided <c>string</c> array as the data.
 		/// </summary>
 		/// <param name="lines">Data to parse.</param>
-		public MAPDisplacement(string[] lines) {
+		public MapDisplacement(string[] lines) {
 			Dictionary<int, string[]> normalsTokens = new Dictionary<int, string[]>(5);
 			Dictionary<int, string[]> distancesTokens = new Dictionary<int, string[]>(5);
 			Dictionary<int, string[]> alphasTokens = new Dictionary<int, string[]>(5);
@@ -46,26 +47,30 @@ namespace LibBSP {
 			bool inDistances = false;
 			bool inAlphas = false;
 			foreach (string line in lines) {
-				if (line == "{") {
-					++braceCount;
-					continue;
-				} else if (line == "}") {
-					--braceCount;
-					if (braceCount == 1) {
-						inNormals = false;
-						inDistances = false;
-						inAlphas = false;
+				switch (line)
+				{
+					case "{":
+						++braceCount;
+						continue;
+					case "}":
+					{
+						--braceCount;
+						if (braceCount == 1) {
+							inNormals = false;
+							inDistances = false;
+							inAlphas = false;
+						}
+						continue;
 					}
-					continue;
-				} else if (line == "normals") {
-					inNormals = true;
-					continue;
-				} else if (line == "distances") {
-					inDistances = true;
-					continue;
-				} else if (line == "alphas") {
-					inAlphas = true;
-					continue;
+					case "normals":
+						inNormals = true;
+						continue;
+					case "distances":
+						inDistances = true;
+						continue;
+					case "alphas":
+						inAlphas = true;
+						continue;
 				}
 
 				if (braceCount == 1) {
@@ -80,7 +85,7 @@ namespace LibBSP {
 							break;
 						}
 						case "startposition": {
-							string[] point = tokens[1].Substring(1, tokens[1].Length - 2).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+							string[] point = tokens[1].Substring(1, tokens[1].Length - 2).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 							start = new Vector3(float.Parse(point[0], _format), float.Parse(point[1], _format), float.Parse(point[2], _format));
 							break;
 						}
@@ -89,17 +94,17 @@ namespace LibBSP {
 					if (inNormals) {
 						string[] tokens = line.SplitUnlessInContainer(' ', '\"', StringSplitOptions.RemoveEmptyEntries);
 						int row = int.Parse(tokens[0].Substring(3));
-						string[] points = tokens[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						string[] points = tokens[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 						normalsTokens[row] = points;
 					} else if (inDistances) {
 						string[] tokens = line.SplitUnlessInContainer(' ', '\"', StringSplitOptions.RemoveEmptyEntries);
 						int row = int.Parse(tokens[0].Substring(3));
-						string[] nums = tokens[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						string[] nums = tokens[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 						distancesTokens[row] = nums;
 					} else if (inAlphas) {
 						string[] tokens = line.SplitUnlessInContainer(' ', '\"', StringSplitOptions.RemoveEmptyEntries);
 						int row = int.Parse(tokens[0].Substring(3));
-						string[] nums = tokens[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						string[] nums = tokens[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 						alphasTokens[row] = nums;
 					}
 				}

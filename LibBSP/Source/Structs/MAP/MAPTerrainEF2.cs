@@ -4,8 +4,9 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.MAP {
 #if UNITY
 	using Vector4 = UnityEngine.Vector4;
 	using Vector3 = UnityEngine.Vector3;
@@ -13,16 +14,15 @@ namespace LibBSP {
 	using Vector4 = Godot.Quat;
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector3 = System.Numerics.Vector3;
-	using Vector4 = System.Numerics.Vector4;
+	using Vector3 = Vector3;
+	using Vector4 = Vector4;
 #endif
 
 	/// <summary>
 	/// Class containing all data necessary to render a Terrain from Star Trek EF2.
 	/// </summary>
-	[Serializable] public class MAPTerrainEF2 {
-
-		private static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
+	[Serializable] public class MapTerrainEf2 {
+		static IFormatProvider _format = CultureInfo.CreateSpecificCulture("en-US");
 
 		public int side;
 		public string texture;
@@ -34,28 +34,28 @@ namespace LibBSP {
 		public int flags;
 		public float sideLength;
 		public Vector3 start;
-		public Vector4 IF;
-		public Vector4 LF;
+		public Vector4 @if;
+		public Vector4 lf;
 		public float[,] heightMap;
 		public float[,] alphaMap;
 
 		/// <summary>
-		/// Creates a new empty <see cref="MAPTerrainEF2"/> object. Internal data will have to be set manually.
+		/// Creates a new empty <see cref="MapTerrainEf2"/> object. Internal data will have to be set manually.
 		/// </summary>
-		public MAPTerrainEF2() { }
+		public MapTerrainEf2() { }
 
 		/// <summary>
-		/// Constructs a new <see cref="MAPTerrainEF2"/> object using the supplied string array as data.
+		/// Constructs a new <see cref="MapTerrainEf2"/> object using the supplied string array as data.
 		/// </summary>
 		/// <param name="lines">Data to parse.</param>
-		public MAPTerrainEF2(string[] lines) {
+		public MapTerrainEf2(string[] lines) {
 
 			texture = lines[2];
 
 			switch (lines[0]) {
 				case "terrainDef": {
 					for (int i = 2; i < lines.Length; ++i) {
-						string[] line = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						string[] line = lines[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 						switch (line[0]) {
 							case "TEX(": {
 								texture = line[1];
@@ -73,16 +73,16 @@ namespace LibBSP {
 								break;
 							}
 							case "IF(": {
-								IF = new Vector4(float.Parse(line[1], _format), float.Parse(line[2], _format), float.Parse(line[3], _format), float.Parse(line[4], _format));
+								@if = new Vector4(float.Parse(line[1], _format), float.Parse(line[2], _format), float.Parse(line[3], _format), float.Parse(line[4], _format));
 								break;
 							}
 							case "LF(": {
-								LF = new Vector4(float.Parse(line[1], _format), float.Parse(line[2], _format), float.Parse(line[3], _format), float.Parse(line[4], _format));
+								lf = new Vector4(float.Parse(line[1], _format), float.Parse(line[2], _format), float.Parse(line[3], _format), float.Parse(line[4], _format));
 								break;
 							}
 							case "V(": {
 								++i;
-								line = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+								line = lines[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 								if (side == 0) {
 									side = line.Length;
 								}
@@ -92,13 +92,13 @@ namespace LibBSP {
 										heightMap[j, k] = float.Parse(line[k], _format);
 									}
 									++i;
-									line = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+									line = lines[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 								}
 								break;
 							}
 							case "A(": {
 								++i;
-								line = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+								line = lines[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 								if (side == 0) {
 									side = line.Length;
 								}
@@ -108,7 +108,7 @@ namespace LibBSP {
 										alphaMap[j, k] = float.Parse(line[k], _format);
 									}
 									++i;
-									line = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+									line = lines[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 								}
 								break;
 							}
@@ -117,7 +117,7 @@ namespace LibBSP {
 					break;
 				}
 				default: {
-					throw new ArgumentException(string.Format("Unknown terrain type {0}!", lines[0]));
+					throw new ArgumentException($"Unknown terrain type {lines[0]}!");
 				}
 			}
 

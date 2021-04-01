@@ -3,15 +3,18 @@
 #endif
 
 using System;
+using System.Numerics;
 using System.Reflection;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Plane = UnityEngine.Plane;
 #elif GODOT
 	using Plane = Godot.Plane;
 #else
-	using Plane = System.Numerics.Plane;
+	using Plane = Plane;
 #endif
 
 	/// <summary>
@@ -30,14 +33,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 		
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -56,11 +59,7 @@ namespace LibBSP {
 		/// <summary>
 		/// Gets the Plane referenced by this <see cref="BrushSide"/>.
 		/// </summary>
-		public Plane Plane {
-			get {
-				return Parent.Bsp.planes[PlaneIndex];
-			}
-		}
+		public Plane Plane => Parent.Bsp.Planes[PlaneIndex];
 
 		/// <summary>
 		/// Gets or sets the index of the Plane used by this <see cref="BrushSide"/>.
@@ -90,13 +89,13 @@ namespace LibBSP {
 					case MapType.CoD2:
 					case MapType.CoD4:
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Mohaa:
 					case MapType.Vindictus: {
 						return BitConverter.ToInt32(Data, 0);
 					}
-					case MapType.STEF2:
+					case MapType.Stef2:
 					case MapType.Nightfire: {
 						return BitConverter.ToInt32(Data, 4);
 					}
@@ -132,14 +131,14 @@ namespace LibBSP {
 					case MapType.CoD2:
 					case MapType.CoD4:
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Mohaa:
 					case MapType.Vindictus: {
 						bytes.CopyTo(Data, 0);
 						break;
 					}
-					case MapType.STEF2:
+					case MapType.Stef2:
 					case MapType.Nightfire: {
 						bytes.CopyTo(Data, 4);
 						break;
@@ -178,21 +177,17 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// Gets the <see cref="LibBSP.Texture"/> referenced by this <see cref="BrushSide"/>.
+		/// Gets the <see cref="Structs.BSP.Texture"/> referenced by this <see cref="BrushSide"/>.
 		/// </summary>
-		public Texture Texture {
-			get {
-				return Parent.Bsp.textures[TextureIndex];
-			}
-		}
+		public Texture Texture => Parent.Bsp.Textures[TextureIndex];
 
 		/// <summary>
-		/// Gets or sets the index of the <see cref="LibBSP.Texture"/> used by this <see cref="BrushSide"/>.
+		/// Gets or sets the index of the <see cref="Structs.BSP.Texture"/> used by this <see cref="BrushSide"/>.
 		/// </summary>
 		public int TextureIndex {
 			get {
 				switch (MapType) {
-					case MapType.STEF2: {
+					case MapType.Stef2: {
 						return BitConverter.ToInt32(Data, 0);
 					}
 					case MapType.SiN:
@@ -217,9 +212,9 @@ namespace LibBSP {
 					case MapType.CoD2:
 					case MapType.CoD4:
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Mohaa:
 					case MapType.Raven: {
 						return BitConverter.ToInt32(Data, 4);
 					}
@@ -231,7 +226,7 @@ namespace LibBSP {
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
 				switch (MapType) {
-					case MapType.STEF2: {
+					case MapType.Stef2: {
 						bytes.CopyTo(Data, 0);
 						break;
 					}
@@ -259,9 +254,9 @@ namespace LibBSP {
 					case MapType.CoD2:
 					case MapType.CoD4:
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Mohaa:
 					case MapType.Raven: {
 						bytes.CopyTo(Data, 4);
 						break;
@@ -271,16 +266,12 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// Gets the <see cref="LibBSP.Face"/> referenced by this <see cref="BrushSide"/>.
+		/// Gets the <see cref="Structs.BSP.Face"/> referenced by this <see cref="BrushSide"/>.
 		/// </summary>
-		public Face Face {
-			get {
-				return Parent.Bsp.faces[FaceIndex];
-			}
-		}
+		public Face Face => Parent.Bsp.Faces[FaceIndex];
 
 		/// <summary>
-		/// Gets or sets the index of the <see cref="LibBSP.Face"/> used by this <see cref="BrushSide"/>.
+		/// Gets or sets the index of the <see cref="Structs.BSP.Face"/> used by this <see cref="BrushSide"/>.
 		/// </summary>
 		public int FaceIndex {
 			get {
@@ -312,17 +303,13 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// In Source engine, gets the <see cref="LibBSP.Displacement"/> referenced by this <see cref="BrushSide"/>.
+		/// In Source engine, gets the <see cref="Structs.BSP.Displacement"/> referenced by this <see cref="BrushSide"/>.
 		/// This is never used since the brushes used to create Displacements are optimized out.
 		/// </summary>
-		public Displacement Displacement {
-			get {
-				return Parent.Bsp.dispInfos[DisplacementIndex];
-			}
-		}
+		public Displacement Displacement => Parent.Bsp.DispInfos[DisplacementIndex];
 
 		/// <summary>
-		/// In Source engine, gets or sets the index of the <see cref="LibBSP.Displacement"/> used by this <see cref="BrushSide"/>.
+		/// In Source engine, gets or sets the index of the <see cref="Structs.BSP.Displacement"/> used by this <see cref="BrushSide"/>.
 		/// This is never used since the brushes used to create Displacements are optimized out.
 		/// </summary>
 		public int DisplacementIndex {
@@ -489,16 +476,16 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{BrushSide}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{BrushSide}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<BrushSide> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<BrushSide> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<BrushSide>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<BrushSide>(data, GetStructLength(bsp.Version), bsp, lumpInfo);
 		}
 
 		/// <summary>
@@ -508,7 +495,7 @@ namespace LibBSP {
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
-		public static int GetStructLength(MapType type, int version = 0) {
+		public static int GetStructLength(MapType type) {
 			switch (type) {
 				case MapType.Quake2:
 				case MapType.Daikatana:
@@ -521,8 +508,8 @@ namespace LibBSP {
 				case MapType.SiN:
 				case MapType.Nightfire:
 				case MapType.Quake3:
-				case MapType.STEF2:
-				case MapType.STEF2Demo:
+				case MapType.Stef2:
+				case MapType.Stef2Demo:
 				case MapType.Source17:
 				case MapType.Source18:
 				case MapType.Source19:
@@ -534,20 +521,27 @@ namespace LibBSP {
 				case MapType.L4D2:
 				case MapType.TacticalInterventionEncrypted:
 				case MapType.DMoMaM:
-				case MapType.FAKK: {
+				case MapType.Fakk: {
 					return 8;
 				}
-				case MapType.MOHAA:
+				case MapType.Mohaa:
 				case MapType.Raven: {
 					return 12;
 				}
 				case MapType.Vindictus: {
 					return 16;
 				}
+				case MapType.Undefined:
+					break;
+				case MapType.Quake:
+					break;
+				case MapType.Titanfall:
+					break;
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + type + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + type + " or has not been implemented.");
 				}
 			}
+			throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + type + " or has not been implemented.");
 		}
 
 		/// <summary>
@@ -568,14 +562,14 @@ namespace LibBSP {
 				case MapType.Quake3: {
 					return 9;
 				}
-				case MapType.FAKK: {
+				case MapType.Fakk: {
 					return 10;
 				}
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					return 11;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo: {
+				case MapType.Stef2:
+				case MapType.Stef2Demo: {
 					return 12;
 				}
 				case MapType.Quake2:
@@ -601,10 +595,18 @@ namespace LibBSP {
 				case MapType.DMoMaM: {
 					return 19;
 				}
+				case MapType.Undefined:
+					break;
+				case MapType.Quake:
+					break;
+				case MapType.Titanfall:
+					break;
 				default: {
 					return -1;
 				}
 			}
+
+			return -1;
 		}
 	}
 }

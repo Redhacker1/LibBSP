@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using LibBSP.Source.Attributes;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 
 	/// <summary>
 	/// Holds data for a leaf structure in a BSP map.
@@ -20,14 +23,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -106,7 +109,7 @@ namespace LibBSP {
 		public IEnumerable<int> MarkBrushes {
 			get {
 				for (int i = 0; i < NumMarkBrushIndices; ++i) {
-					yield return (int)Parent.Bsp.markBrushes[FirstMarkBrushIndex + i];
+					yield return (int)Parent.Bsp.MarkBrushes[FirstMarkBrushIndex + i];
 				}
 			}
 		}
@@ -144,10 +147,10 @@ namespace LibBSP {
 						return BitConverter.ToUInt16(Data, 26);
 					}
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven:
 					case MapType.Nightfire: {
 						return BitConverter.ToInt32(Data, 40);
@@ -196,10 +199,10 @@ namespace LibBSP {
 						break;
 					}
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven:
 					case MapType.Nightfire: {
 						bytes.CopyTo(Data, 40);
@@ -247,10 +250,10 @@ namespace LibBSP {
 					}
 					case MapType.Nightfire:
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven: {
 						return BitConverter.ToInt32(Data, 44);
 					}
@@ -299,10 +302,10 @@ namespace LibBSP {
 					}
 					case MapType.Nightfire:
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven: {
 						bytes.CopyTo(Data, 44);
 						break;
@@ -321,7 +324,7 @@ namespace LibBSP {
 		public IEnumerable<int> MarkFaces {
 			get {
 				for (int i = 0; i < NumMarkFaceIndices; ++i) {
-					yield return (int)Parent.Bsp.markSurfaces[FirstMarkFaceIndex + i];
+					yield return (int)Parent.Bsp.MarkSurfaces[FirstMarkFaceIndex + i];
 				}
 			}
 		}
@@ -357,10 +360,10 @@ namespace LibBSP {
 						return BitConverter.ToUInt16(Data, 22);
 					}
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven:
 					case MapType.Nightfire: {
 						return BitConverter.ToInt32(Data, 32);
@@ -406,10 +409,10 @@ namespace LibBSP {
 						break;
 					}
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven:
 					case MapType.Nightfire: {
 						bytes.CopyTo(Data, 32);
@@ -454,10 +457,10 @@ namespace LibBSP {
 						return BitConverter.ToUInt16(Data, 24);
 					}
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven:
 					case MapType.Nightfire: {
 						return BitConverter.ToInt32(Data, 36);
@@ -503,10 +506,10 @@ namespace LibBSP {
 						break;
 					}
 					case MapType.Quake3:
-					case MapType.FAKK:
-					case MapType.STEF2Demo:
-					case MapType.STEF2:
-					case MapType.MOHAA:
+					case MapType.Fakk:
+					case MapType.Stef2Demo:
+					case MapType.Stef2:
+					case MapType.Mohaa:
 					case MapType.Raven:
 					case MapType.Nightfire: {
 						bytes.CopyTo(Data, 36);
@@ -564,22 +567,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{Leaf}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{Leaf}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<Leaf> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<Leaf> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<Leaf>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<Leaf>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
@@ -612,9 +615,9 @@ namespace LibBSP {
 				}
 				case MapType.Nightfire:
 				case MapType.Quake3:
-				case MapType.FAKK:
-				case MapType.STEF2Demo:
-				case MapType.STEF2:
+				case MapType.Fakk:
+				case MapType.Stef2Demo:
+				case MapType.Stef2:
 				case MapType.Raven: {
 					return 48;
 				}
@@ -623,11 +626,11 @@ namespace LibBSP {
 				case MapType.Vindictus: {
 					return 56;
 				}
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					return 64;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}
@@ -643,16 +646,16 @@ namespace LibBSP {
 				case MapType.Quake3: {
 					return 4;
 				}
-				case MapType.MOHAA:
-				case MapType.FAKK:
+				case MapType.Mohaa:
+				case MapType.Fakk:
 				case MapType.Quake2:
 				case MapType.SiN:
 				case MapType.Daikatana:
 				case MapType.SoF: {
 					return 8;
 				}
-				case MapType.STEF2:
-				case MapType.STEF2Demo:
+				case MapType.Stef2:
+				case MapType.Stef2Demo:
 				case MapType.Quake:
 				case MapType.Vindictus:
 				case MapType.TacticalInterventionEncrypted:

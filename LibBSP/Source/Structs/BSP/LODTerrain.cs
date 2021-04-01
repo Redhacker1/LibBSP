@@ -1,13 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 
 	/// <summary>
 	/// Holds the data for a terrain object in MoHAA.
 	/// </summary>
-	public struct LODTerrain : ILumpObject {
+	public struct LodTerrain : ILumpObject {
 
 		/// <summary>
 		/// The <see cref="ILump"/> this <see cref="ILumpObject"/> came from.
@@ -20,14 +21,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -49,7 +50,7 @@ namespace LibBSP {
 		public byte Flags {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return Data[0];
 					}
 					default: {
@@ -59,7 +60,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						Data[0] = value;
 						break;
 					}
@@ -73,7 +74,7 @@ namespace LibBSP {
 		public byte Scale {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return Data[1];
 					}
 					default: {
@@ -83,7 +84,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						Data[1] = value;
 						break;
 					}
@@ -97,8 +98,8 @@ namespace LibBSP {
 		public byte[] LightmapCoordinates {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
-						return new byte[] { Data[2], Data[3] };
+					case MapType.Mohaa: {
+						return new[] { Data[2], Data[3] };
 					}
 					default: {
 						return null;
@@ -110,7 +111,7 @@ namespace LibBSP {
 					throw new ArgumentException("LightmapCoordinates array must have 2 elements.");
 				}
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						Data[2] = value[0];
 						Data[3] = value[1];
 						break;
@@ -125,8 +126,8 @@ namespace LibBSP {
 		public float[] UVs {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
-						return new float[] {
+					case MapType.Mohaa: {
+						return new[] {
 							BitConverter.ToSingle(Data, 4),
 							BitConverter.ToSingle(Data, 8),
 							BitConverter.ToSingle(Data, 12),
@@ -147,7 +148,7 @@ namespace LibBSP {
 					throw new ArgumentException("UVs array must have 8 elements.");
 				}
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						int offset = 4;
 						for (int i = 0; i < value.Length; ++i) {
 							BitConverter.GetBytes(value[i]).CopyTo(Data, offset + (i * 4));
@@ -164,7 +165,7 @@ namespace LibBSP {
 		public sbyte X {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return (sbyte)Data[36];
 					}
 					default: {
@@ -174,7 +175,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						Data[36] = (byte)value;
 						break;
 					}
@@ -188,7 +189,7 @@ namespace LibBSP {
 		public sbyte Y {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return (sbyte)Data[37];
 					}
 					default: {
@@ -198,7 +199,7 @@ namespace LibBSP {
 			}
 			set {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						Data[37] = (byte)value;
 						break;
 					}
@@ -212,7 +213,7 @@ namespace LibBSP {
 		public short BaseZ {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return BitConverter.ToInt16(Data, 38);
 					}
 					default: {
@@ -223,7 +224,7 @@ namespace LibBSP {
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						bytes.CopyTo(Data, 38);
 						break;
 					}
@@ -232,21 +233,17 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// Gets the <see cref="LibBSP.Texture"/> referenced by this terrain.
+		/// Gets the <see cref="Structs.BSP.Texture"/> referenced by this terrain.
 		/// </summary>
-		public Texture Texture {
-			get {
-				return Parent.Bsp.textures[TextureIndex];
-			}
-		}
-		
+		public Texture Texture => Parent.Bsp.Textures[TextureIndex];
+
 		/// <summary>
 		/// Gets or sets the <see cref="Texture"/> index for this terrain.
 		/// </summary>
 		public ushort TextureIndex {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return BitConverter.ToUInt16(Data, 40);
 					}
 					default: {
@@ -257,7 +254,7 @@ namespace LibBSP {
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						bytes.CopyTo(Data, 40);
 						break;
 					}
@@ -271,7 +268,7 @@ namespace LibBSP {
 		public short Lightmap {
 			get {
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						return BitConverter.ToInt16(Data, 42);
 					}
 					default: {
@@ -282,7 +279,7 @@ namespace LibBSP {
 			set {
 				byte[] bytes = BitConverter.GetBytes(value);
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						bytes.CopyTo(Data, 42);
 						break;
 					}
@@ -297,7 +294,7 @@ namespace LibBSP {
 			get {
 				ushort[,] ret = new ushort[2,63];
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						for (int i = 0; i < ret.GetLength(0); ++i) {
 							for (int j = 0; j < ret.GetLength(1); ++j) {
 								ret[i, j] = BitConverter.ToUInt16(Data, 52 + (i * 126) + (j * 2));
@@ -327,7 +324,7 @@ namespace LibBSP {
 			get {
 				byte[,] ret = new byte[9, 9];
 				switch (MapType) {
-					case MapType.MOHAA: {
+					case MapType.Mohaa: {
 						for (int i = 0; i < ret.GetLength(0); ++i) {
 							for (int j = 0; j < ret.GetLength(1); ++j) {
 								ret[i, j] = Data[304 + (i * 9) + j];
@@ -351,12 +348,12 @@ namespace LibBSP {
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="LODTerrain"/> object from a <c>byte</c> array.
+		/// Creates a new <see cref="LodTerrain"/> object from a <c>byte</c> array.
 		/// </summary>
 		/// <param name="data"><c>byte</c> array to parse.</param>
-		/// <param name="parent">The <see cref="ILump"/> this <see cref="LODTerrain"/> came from.</param>
+		/// <param name="parent">The <see cref="ILump"/> this <see cref="LodTerrain"/> came from.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> was <c>null</c>.</exception>
-		public LODTerrain(byte[] data, ILump parent = null) {
+		public LodTerrain(byte[] data, ILump parent = null) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
@@ -369,32 +366,32 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{LODTerrain}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{LODTerrain}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<LODTerrain> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<LodTerrain> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<LODTerrain>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<LodTerrain>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
 		public static int GetStructLength(MapType mapType, int lumpVersion = 0) {
 			switch (mapType) {
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					return 388;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}
@@ -406,7 +403,7 @@ namespace LibBSP {
 		/// <returns>Index for this lump, or -1 if the format doesn't have this lump or it's not implemented.</returns>
 		public static int GetIndexForLump(MapType type) {
 			switch (type) {
-				case MapType.MOHAA: {
+				case MapType.Mohaa: {
 					return 22;
 				}
 				default: {

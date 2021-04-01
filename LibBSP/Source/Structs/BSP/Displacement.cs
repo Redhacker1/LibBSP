@@ -4,15 +4,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Vector3 = UnityEngine.Vector3;
 #elif GODOT
 	using Vector3 = Godot.Vector3;
 #else
-	using Vector3 = System.Numerics.Vector3;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -31,14 +35,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -58,12 +62,8 @@ namespace LibBSP {
 		/// Gets or sets the starting position of this <see cref="Displacement"/>.
 		/// </summary>
 		public Vector3 StartPosition {
-			get {
-				return new Vector3(BitConverter.ToSingle(Data, 0), BitConverter.ToSingle(Data, 4), BitConverter.ToSingle(Data, 8));
-			}
-			set {
-				value.GetBytes().CopyTo(Data, 0);
-			}
+			get => new Vector3(BitConverter.ToSingle(Data, 0), BitConverter.ToSingle(Data, 4), BitConverter.ToSingle(Data, 8));
+			set => value.GetBytes().CopyTo(Data, 0);
 		}
 
 		/// <summary>
@@ -73,7 +73,7 @@ namespace LibBSP {
 			get {
 				int numVertices = NumVertices;
 				for (int i = 0; i < numVertices; ++i) {
-					yield return Parent.Bsp.dispVerts[FirstVertexIndex + i];
+					yield return Parent.Bsp.DispVerts[FirstVertexIndex + i];
 				}
 			}
 		}
@@ -82,12 +82,8 @@ namespace LibBSP {
 		/// Gets or sets the index of the first <see cref="DisplacementVertex"/> used by this <see cref="Displacement"/>.
 		/// </summary>
 		public int FirstVertexIndex {
-			get {
-				return BitConverter.ToInt32(Data, 12);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 12);
-			}
+			get => BitConverter.ToInt32(Data, 12);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 12);
 		}
 
 		/// <summary>
@@ -96,7 +92,7 @@ namespace LibBSP {
 		public IEnumerable<ushort> Triangles {
 			get {
 				for (int i = 0; i < NumTriangles; ++i) {
-					yield return (ushort)Parent.Bsp.displacementTriangles[FirstTriangleIndex + i];
+					yield return (ushort)Parent.Bsp.DisplacementTriangles[FirstTriangleIndex + i];
 				}
 			}
 		}
@@ -105,24 +101,16 @@ namespace LibBSP {
 		/// Gets or sets the index of the first Displacement Triangle used by this <see cref="Displacement"/>.
 		/// </summary>
 		public int FirstTriangleIndex {
-			get {
-				return BitConverter.ToInt32(Data, 16);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 16);
-			}
+			get => BitConverter.ToInt32(Data, 16);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 16);
 		}
 
 		/// <summary>
 		/// Gets or sets the power of this <see cref="Displacement"/>.
 		/// </summary>
 		public int Power {
-			get {
-				return BitConverter.ToInt32(Data, 20);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 20);
-			}
+			get => BitConverter.ToInt32(Data, 20);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 20);
 		}
 
 		/// <summary>
@@ -149,81 +137,53 @@ namespace LibBSP {
 		/// Gets or sets the minimum allowed tesselation for this <see cref="Displacement"/>.
 		/// </summary>
 		public int MinimumTesselation {
-			get {
-				return BitConverter.ToInt32(Data, 24);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 24);
-			}
+			get => BitConverter.ToInt32(Data, 24);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 24);
 		}
 
 		/// <summary>
 		/// Gets or sets the lighting smoothing angle for this <see cref="Displacement"/>.
 		/// </summary>
 		public float SmoothingAngle {
-			get {
-				return BitConverter.ToSingle(Data, 28);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 28);
-			}
+			get => BitConverter.ToSingle(Data, 28);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 28);
 		}
 
 		/// <summary>
 		/// Gets or sets the contents flags for this <see cref="Displacement"/>.
 		/// </summary>
 		public int Contents {
-			get {
-				return BitConverter.ToInt32(Data, 32);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 32);
-			}
+			get => BitConverter.ToInt32(Data, 32);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 32);
 		}
 
 		/// <summary>
-		/// Gets the <see cref="LibBSP.Face"/> this <see cref="Displacement"/> was made from, for texturing and other information.
+		/// Gets the <see cref="Structs.BSP.Face"/> this <see cref="Displacement"/> was made from, for texturing and other information.
 		/// </summary>
-		public Face Face {
-			get {
-				return Parent.Bsp.faces[FaceIndex];
-			}
-		}
+		public Face Face => Parent.Bsp.Faces[FaceIndex];
 
 		/// <summary>
-		/// Gets or sets the index of the <see cref="LibBSP.Face"/> this <see cref="Displacement"/> was made from, for texturing and other information.
+		/// Gets or sets the index of the <see cref="Structs.BSP.Face"/> this <see cref="Displacement"/> was made from, for texturing and other information.
 		/// </summary>
 		public ushort FaceIndex {
-			get {
-				return BitConverter.ToUInt16(Data, 36);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 36);
-			}
+			get => BitConverter.ToUInt16(Data, 36);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 36);
 		}
 
 		/// <summary>
 		/// Get or sets the index of the lightmap alpha for this <see cref="Displacement"/>.
 		/// </summary>
 		public int LightmapAlphaStart {
-			get {
-				return BitConverter.ToInt32(Data, 38);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 38);
-			}
+			get => BitConverter.ToInt32(Data, 38);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 38);
 		}
 
 		/// <summary>
 		/// Gets or sets the index of the first lightmap sample position used by this <see cref="Displacement"/>.
 		/// </summary>
 		public int LightmapSamplePositionStart {
-			get {
-				return BitConverter.ToInt32(Data, 42);
-			}
-			set {
-				BitConverter.GetBytes(value).CopyTo(Data, 42);
-			}
+			get => BitConverter.ToInt32(Data, 42);
+			set => BitConverter.GetBytes(value).CopyTo(Data, 42);
 		}
 
 		/// <summary>
@@ -324,22 +284,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="Lump{Displacement}"/>.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="Lump{Displacement}"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static Lump<Displacement> LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static Lump<Displacement> LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new Lump<Displacement>(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new Lump<Displacement>(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// Gets the length of this struct's data for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>The length, in <c>byte</c>s, of this struct.</returns>
 		/// <exception cref="ArgumentException">This struct is not valid or is not implemented for the given <paramref name="mapType"/> and <paramref name="lumpVersion"/>.</exception>
@@ -366,7 +326,7 @@ namespace LibBSP {
 					return 232;
 				}
 				default: {
-					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType.Name + " does not exist in map type " + mapType + " or has not been implemented.");
+					throw new ArgumentException("Lump object " + MethodBase.GetCurrentMethod().DeclaringType?.Name + " does not exist in map type " + mapType + " or has not been implemented.");
 				}
 			}
 		}

@@ -1,13 +1,13 @@
 using System;
-using System.Collections.Generic;
+using LibBSP.Source.Structs.BSP;
 
-namespace LibBSP {
+namespace LibBSP.Source.Attributes {
 	/// <summary>
 	/// Custom Attribute class to mark a member of a struct as an index into another lump. The
 	/// member this Attribute is applied to can be paired with a member with a <see cref="CountAttribute"/>
 	/// applied to it. The two attributes can the be used to grab a range of objects
 	/// from the specified lump through the
-	/// <see cref="BSP.GetReferencedObjects&lt;T&gt;(System.Object, System.String)"/> method.
+	/// <see cref="Bsp.GetReferencedObjects{T}"/> method.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	public class IndexAttribute : Attribute {
@@ -18,7 +18,7 @@ namespace LibBSP {
 		/// Constructs a new instance of an <see cref="IndexAttribute"/> object. The member this Attribute
 		/// is applied to will be used as an index into the lump referenced by <paramref name="lumpName"/>.
 		/// </summary>
-		/// <param name="lumpName">The lump the member is an index into. Corresponds to the public properties in the <see cref="BSP"/> class.</param>
+		/// <param name="lumpName">The lump the member is an index into. Corresponds to the public properties in the <see cref="Bsp"/> class.</param>
 		public IndexAttribute(string lumpName) {
 			this.lumpName = lumpName;
 		}

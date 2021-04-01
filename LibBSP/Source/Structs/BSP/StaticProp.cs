@@ -4,9 +4,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
 using System.Text;
+using LibBSP.Source.Extensions;
+using LibBSP.Source.Structs.BSP.Lumps;
+using LibBSP.Source.Structs.Common;
+using LibBSP.Source.Structs.Common.Lumps;
 
-namespace LibBSP {
+namespace LibBSP.Source.Structs.BSP {
 #if UNITY
 	using Color = UnityEngine.Color32;
 	using Vector3 = UnityEngine.Vector3;
@@ -14,8 +20,8 @@ namespace LibBSP {
 	using Color = Godot.Color;
 	using Vector3 = Godot.Vector3;
 #else
-	using Color = System.Drawing.Color;
-	using Vector3 = System.Numerics.Vector3;
+	using Color = Color;
+	using Vector3 = Vector3;
 #endif
 
 	/// <summary>
@@ -34,14 +40,14 @@ namespace LibBSP {
 		public byte[] Data { get; private set; }
 
 		/// <summary>
-		/// The <see cref="LibBSP.MapType"/> to use to interpret <see cref="Data"/>.
+		/// The <see cref="Structs.BSP.MapType"/> to use to interpret <see cref="Data"/>.
 		/// </summary>
 		public MapType MapType {
 			get {
 				if (Parent == null || Parent.Bsp == null) {
 					return MapType.Undefined;
 				}
-				return Parent.Bsp.version;
+				return Parent.Bsp.Version;
 			}
 		}
 
@@ -212,12 +218,8 @@ namespace LibBSP {
 		/// <summary>
 		/// Gets the name of the model for this <see cref="StaticProp"/> from <see cref="StaticProps.ModelDictionary"/>.
 		/// </summary>
-		public string Model {
-			get {
-				return ((StaticProps)Parent).ModelDictionary[ModelIndex];
-			}
-		}
-		
+		public string Model => ((StaticProps)Parent).ModelDictionary[ModelIndex];
+
 		/// <summary>
 		/// Gets or sets the index of this model's name in <see cref="StaticProps.ModelDictionary"/>.
 		/// </summary>
@@ -636,12 +638,13 @@ namespace LibBSP {
 							case 12: {
 								return BitConverter.ToInt32(Data, 32);
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return BitConverter.ToInt32(Data, 36);
-								} else {
-									return BitConverter.ToInt32(Data, 32);
 								}
+
+								return BitConverter.ToInt32(Data, 32);
 							}
 							default: {
 								return -1;
@@ -726,12 +729,13 @@ namespace LibBSP {
 							case 12: {
 								return BitConverter.ToSingle(Data, 36);
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return BitConverter.ToSingle(Data, 40);
-								} else {
-									return BitConverter.ToSingle(Data, 36);
 								}
+
+								return BitConverter.ToSingle(Data, 36);
 							}
 							default: {
 								return float.NaN;
@@ -816,12 +820,13 @@ namespace LibBSP {
 							case 12: {
 								return BitConverter.ToSingle(Data, 40);
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return BitConverter.ToInt32(Data, 44);
-								} else {
-									return BitConverter.ToInt32(Data, 40);
 								}
+
+								return BitConverter.ToInt32(Data, 40);
 							}
 							default: {
 								return float.NaN;
@@ -906,12 +911,13 @@ namespace LibBSP {
 							case 12: {
 								return new Vector3(BitConverter.ToSingle(Data, 44), BitConverter.ToSingle(Data, 48), BitConverter.ToSingle(Data, 52));
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return new Vector3(BitConverter.ToSingle(Data, 48), BitConverter.ToSingle(Data, 52), BitConverter.ToSingle(Data, 56));
-								} else {
-									return new Vector3(BitConverter.ToSingle(Data, 44), BitConverter.ToSingle(Data, 48), BitConverter.ToSingle(Data, 52));
 								}
+
+								return new Vector3(BitConverter.ToSingle(Data, 44), BitConverter.ToSingle(Data, 48), BitConverter.ToSingle(Data, 52));
 							}
 							default: {
 								return new Vector3(float.NaN, float.NaN, float.NaN);
@@ -995,12 +1001,13 @@ namespace LibBSP {
 							case 12: {
 								return BitConverter.ToSingle(Data, 56);
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return BitConverter.ToSingle(Data, 60);
-								} else {
-									return BitConverter.ToSingle(Data, 56);
 								}
+
+								return BitConverter.ToSingle(Data, 56);
 							}
 							default: {
 								return float.NaN;
@@ -1171,7 +1178,7 @@ namespace LibBSP {
 		/// <summary>
 		/// Gets or sets the minimum CPU level supported for this <see cref="StaticProp"/> to be visible.
 		/// </summary>
-		public byte MinimumCPULevel {
+		public byte MinimumCpuLevel {
 			get {
 				switch (MapType) {
 					case MapType.Source17:
@@ -1194,12 +1201,13 @@ namespace LibBSP {
 							case 12: {
 								return Data[60];
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return Data[64];
-								} else {
-									return Data[60];
 								}
+
+								return Data[60];
 							}
 							default: {
 								return 0;
@@ -1252,7 +1260,7 @@ namespace LibBSP {
 		/// <summary>
 		/// Gets or sets the maximum CPU level supported for this <see cref="StaticProp"/> to be visible.
 		/// </summary>
-		public byte MaximumCPULevel {
+		public byte MaximumCpuLevel {
 			get {
 				switch (MapType) {
 					case MapType.Source17:
@@ -1275,12 +1283,13 @@ namespace LibBSP {
 							case 12: {
 								return Data[61];
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return Data[65];
-								} else {
-									return Data[61];
 								}
+
+								return Data[61];
 							}
 							default: {
 								return 0;
@@ -1333,7 +1342,7 @@ namespace LibBSP {
 		/// <summary>
 		/// Gets or sets the minimum GPU level supported for this <see cref="StaticProp"/> to be visible.
 		/// </summary>
-		public byte MinimumGPULevel {
+		public byte MinimumGpuLevel {
 			get {
 				switch (MapType) {
 					case MapType.Source17:
@@ -1356,12 +1365,13 @@ namespace LibBSP {
 							case 12: {
 								return Data[62];
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return Data[66];
-								} else {
-									return Data[62];
 								}
+
+								return Data[62];
 							}
 							default: {
 								return 0;
@@ -1414,7 +1424,7 @@ namespace LibBSP {
 		/// <summary>
 		/// Gets or sets the maximum GPU level supported for this <see cref="StaticProp"/> to be visible.
 		/// </summary>
-		public byte MaximumGPULevel {
+		public byte MaximumGpuLevel {
 			get {
 				switch (MapType) {
 					case MapType.Source17:
@@ -1437,12 +1447,13 @@ namespace LibBSP {
 							case 12: {
 								return Data[63];
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return Data[67];
-								} else {
-									return Data[63];
 								}
+
+								return Data[63];
 							}
 							default: {
 								return 0;
@@ -1519,12 +1530,13 @@ namespace LibBSP {
 							case 12: {
 								return ColorExtensions.FromArgb(Data[67], Data[64], Data[65], Data[66]);
 							}
-							case 9: {
+							case 9:
+							{
 								if (Data.Length == 76) {
 									return ColorExtensions.FromArgb(Data[72], Data[69], Data[70], Data[71]);
-								} else {
-									return ColorExtensions.FromArgb(Data[67], Data[64], Data[65], Data[66]);
 								}
+
+								return ColorExtensions.FromArgb(Data[67], Data[64], Data[65], Data[66]);
 							}
 							default: {
 								return ColorExtensions.FromArgb(255, 255, 255, 255);
@@ -1700,22 +1712,22 @@ namespace LibBSP {
 		/// Factory method to parse a <c>byte</c> array into a <see cref="StaticProps"/> object.
 		/// </summary>
 		/// <param name="data">The data to parse.</param>
-		/// <param name="bsp">The <see cref="BSP"/> this lump came from.</param>
+		/// <param name="bsp">The <see cref="Bsp"/> this lump came from.</param>
 		/// <param name="lumpInfo">The <see cref="LumpInfo"/> associated with this lump.</param>
 		/// <returns>A <see cref="StaticProps"/> object.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="data"/> parameter was <c>null</c>.</exception>
-		public static StaticProps LumpFactory(byte[] data, BSP bsp, LumpInfo lumpInfo) {
+		public static StaticProps LumpFactory(byte[] data, Bsp bsp, LumpInfo lumpInfo) {
 			if (data == null) {
 				throw new ArgumentNullException();
 			}
 
-			return new StaticProps(data, GetStructLength(bsp.version, lumpInfo.version), bsp, lumpInfo);
+			return new StaticProps(data, GetStructLength(bsp.Version, lumpInfo.version), bsp, lumpInfo);
 		}
 
 		/// <summary>
 		/// This is a variable length structure. Return -1. The <see cref="StaticProps"/> class will handle object creation.
 		/// </summary>
-		/// <param name="mapType">The <see cref="LibBSP.MapType"/> of the BSP.</param>
+		/// <param name="mapType">The <see cref="Structs.BSP.MapType"/> of the BSP.</param>
 		/// <param name="lumpVersion">The version number for the lump.</param>
 		/// <returns>-1</returns>
 		public static int GetStructLength(MapType mapType, int lumpVersion = 0) {
